@@ -51,7 +51,7 @@
           url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
           dest: "{{ directory_result.path }}"
           validate_certs: no
-        register: apr_util_download
+        register: apr-util_download
 
       - name: display download results apr-util
         debug:
