@@ -146,5 +146,5 @@
           port: "{{ item }}/tcp"
           permanent: yes
           state: enabled
-          with_items:
-            - 443
+        with_items:
+          - 443
