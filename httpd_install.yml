@@ -30,8 +30,10 @@
           dest: "{{ directory_result.path }}"
           validate_certs: no
         register: httpd_download
-        debug: 
-          var: httpd_downnload
+
+      - name: display download results
+        debug:
+          vars: httpd_download
 
       - name: Download latest httpd and dependencies
         get_url:
@@ -39,8 +41,10 @@
           dest: "{{ directory_result.path }}"
           validate_certs: no
         register: apr_download
-        debug: 
-          var: apr_download
+
+      - name: display download results
+        debug:
+          vars: apr_download
 
       - name: Download latest httpd and dependencies
         get_url:
@@ -48,8 +52,10 @@
           dest: "{{ directory_result.path }}"
           validate_certs: no
         register: apr_util_download
-        debug: 
-          var: apr_util_download
+
+      - name: display download results
+        debug:
+          vars: apr_download
 
       # - name: Extract httpd and dependencies
       #   shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
