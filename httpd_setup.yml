@@ -31,10 +31,6 @@
           validate_certs: no
         register: httpd_download
 
-      - name: display downloaded results
-        debug:
-          var: httpd_download
-
       - name: Download latest httpd and dependencies
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
@@ -53,49 +49,53 @@
         unarchive: 
           src: "{{ httpd_download.dest }}"
           dest: "{{ directory_result.path }}"
+          remote_src: yes
         register: httpd_extracted
 
-      - name: display extracted results
+      - name: Extract directory name from file path httpd
+        set_fact:
+          directory_name: "{{ httpd_extracted.src | basename | regex_replace('-(.*)$', '') }}"
+        register: http_directory
+
+      - name: Display directory name httpd
         debug:
-          var: httpd_extracted
+          var: http_directory
 
       - name: Extract apr
         unarchive: 
           src: "{{ apr_download.dest }}"
           dest: "{{ directory_result.path }}"
+          remote_src: yes
         register: apr_extracted
 
-      - name: display extracted results
+      - name: Extract directory name from file path apr
+        set_fact:
+          directory_name: "{{ apr_extracted.src | basename | regex_replace('-(.*)$', '') }}"
+        register: apr_directory
+
+      - name: Display directory name apr
         debug:
-          var: apr_extracted
+          var: apr_directory
 
       - name: Extract apr-util
         unarchive: 
           src: "{{ apr_util_download.dest }}"
           dest: "{{ directory_result.path }}"
+          remote_src: yes
         register: apr_util_extracted
 
-      - name: display extracted results
+      - name: Extract directory name from file path apr
+        set_fact:
+          directory_name: "{{ apr_util_download.dest | basename | regex_replace('^.*?-([^\\-]+)-.*\\.tar\\.gz$', '\\1') }}"
+        register: apr_util_directory
+
+      - name: Display directory name apr
         debug:
-          var: apr_util_extracted
+          var: apr_util_directory
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf {{ item }}"
-      #   with_items:
-      #     - "{{ httpd_download.dest }}"
-      #   register: httpd_extracted
+      
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf {{ item }}"
-      #   with_items:
-      #     - "{{ apr_download.dest }}"
-      #   register: apr_extracted
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf {{ item }}"
-      #   with_items:
-      #     - "{{ apr-util_download.dest }}"
-      #   register: apr-util_extracted
 
       # - name: Copy apr files to httpd
       #   shell: "cp -r {{ directory_result.stdout }}/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
