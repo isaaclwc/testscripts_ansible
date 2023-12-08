@@ -59,8 +59,6 @@
 
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-        args:
-          chdir: "{{ directory_result.path }}"
         with_items:
           - "{{ httpd_download.dest }}"
         register: httpd_extracted
@@ -71,8 +69,6 @@
 
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-        args:
-          chdir: "{{ directory_result.path }}"
         with_items:
           - "{{ apr_download.dest }}"
         register: apr_extracted
@@ -83,8 +79,6 @@
 
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-        args:
-          chdir: "{{ directory_result.path }}"
         with_items:
           - "{{ apr-util_download.dest }}"
         register: apr-util_extracted
