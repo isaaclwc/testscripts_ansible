@@ -1,0 +1,15 @@
+---
+  - name: Install prerequisites and set up Apache HTTPD on CentOS 7
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: create installer directory
+        file:
+          path: /opt/installer
+          state: directory
+        register: directory_result
+        
+      - name: show registered directory
+        debug:
+          var: directory_result
