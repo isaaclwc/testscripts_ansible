@@ -77,6 +77,7 @@
         set_fact:
           apr_util_directory_name: "{{ apr_util_download.dest | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
           ##apr_util_directory_name: "(( {{ apr_util_download.dest | basename | regex_replace('\\.tar\\.gz$', '') }}"
+          ##{{ apr-util-1.6.1 | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('-.*', '') }}
 
       - name: Display omiited extension apr-util
         debug:
