@@ -44,28 +44,49 @@
         chdir: /opt/installer/
       with_items:
         - httpd-2.4.48
-        - apr-1.7.0
-        - apr-util-1.6.1
+      register: httpd_extracted
 
-    - name: Copy apr files to httpd
-      shell: "cp -r /opt/installer/{{ item }} httpd-2.4.48/srclib/{{ item }}"
+    - name: Extract httpd and dependencies
+      shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
       args:
         chdir: /opt/installer/
       with_items:
         - apr-1.7.0
+      register: apr_extracted
+
+    - name: Extract httpd and dependencies
+      shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+      args:
+        chdir: /opt/installer/
+      with_items:
         - apr-util-1.6.1
+      register: apr-util_extracted
+
+    - name: Copy apr files to httpd
+      shell: "cp -r /opt/installer/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
+      args:
+        chdir: /opt/installer/
+      with_items:
+        - "{{ apr_extracted.stdout }}"
+        - "{{ apr-util_extracted.stdout }}"
 
     - name: Select the default Python
       shell: "sudo alternatives --config python"
 
-    - name: Compile and install httpd
+    - name: Compile httpd
       command: |
         ./buildconf
-        ./configure --with-included-apr --prefix=/opt/apache2.4.48_NAME/ --enable-ssl --enable-so
+        ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
+      args:
+        chdir: /opt/installer/{{ httpd_extracted.stdout }}/
+      register: prefix_result
+
+    - name: Install httpd
+      command: |
         make
         sudo make install
       args:
-        chdir: /opt/installer/httpd-2.4.48/
+        chdir: /opt/installer/{{ httpd_extracted.stdout }}/
       
     # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
     #   # Add tasks to configure httpd.conf and SSL
@@ -85,7 +106,7 @@
 
     - name: Change directory ownership
       file:
-        path: /opt/apache2.4.48_NAME/
+        path: "{{ prefix_result.stdout }}"
         owner: apache
         group: apache
         recurse: yes
@@ -99,22 +120,20 @@
 
           [Service]
           Type=forking
-          ExecStart=/opt/apache2.4.48_NAME/bin/apachectl -k start
-          ExecReload=/opt/apache2.4.48_NAME/bin/apachectl -k graceful
-          ExecStop=/opt/apache2.4.48_NAME/bin/apachectl -k graceful-stop
-          PIDFile=/opt/apache2.4.48_NAME/logs/httpd.pid
+          ExecStart={{ prefix_result.stdout }}/bin/apachectl -k start
+          ExecReload={{ prefix_result.stdout }}/bin/apachectl -k graceful
+          ExecStop={{ prefix_result.stdout }}/bin/apachectl -k graceful-stop
+          PIDFile={{ prefix_result.stdout }}/logs/httpd.pid
 
           PrivateTmp=true
 
           [Install]
           WantedBy=multi-user.target
         dest: /etc/systemd/system/httpd.service
+      register: destination_result
 
     - name: Enable and start httpd service
-      service:
-        name: httpd
-        enabled: yes
-        state: started
+      shell: "systemctl start {{ destination_result.dest }}"
 
     - name: Configure firewalld
       service:
