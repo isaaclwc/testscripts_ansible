@@ -3,7 +3,6 @@
     hosts: httpd_servers
     gather_facts: no
     become: yes
-
     tasks:
       - name: Stop httpd_old service
         service:
