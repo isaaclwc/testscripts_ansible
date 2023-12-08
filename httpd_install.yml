@@ -31,7 +31,7 @@
           validate_certs: no
         register: httpd_download
 
-      - name: display download results
+      - name: display download results httpd
         debug:
           var: httpd_download
 
@@ -42,7 +42,7 @@
           validate_certs: no
         register: apr_download
 
-      - name: display download results
+      - name: display download results apr
         debug:
           var: apr_download
 
@@ -53,12 +53,12 @@
           validate_certs: no
         register: apr_util_download
 
-      - name: display download results
+      - name: display download results apr-util
         debug:
           var: apr-util_download
 
       - name: Extract httpd and dependencies
-        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        shell: "tar -zxvf {{ item }}"
         with_items:
           - "{{ httpd_download.dest }}"
         register: httpd_extracted
@@ -68,7 +68,7 @@
           var: httpd_extracted
 
       - name: Extract httpd and dependencies
-        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        shell: "tar -zxvf {{ item }}"
         with_items:
           - "{{ apr_download.dest }}"
         register: apr_extracted
@@ -78,7 +78,7 @@
           var: apr_extracted
 
       - name: Extract httpd and dependencies
-        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        shell: "tar -zxvf {{ item }}"
         with_items:
           - "{{ apr-util_download.dest }}"
         register: apr-util_extracted
