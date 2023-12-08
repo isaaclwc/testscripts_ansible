@@ -33,7 +33,7 @@
 
       - name: display download results
         debug:
-          vars: httpd_download
+          var: httpd_download
 
       - name: Download latest httpd and dependencies
         get_url:
@@ -44,7 +44,7 @@
 
       - name: display download results
         debug:
-          vars: apr_download
+          var: apr_download
 
       - name: Download latest httpd and dependencies
         get_url:
@@ -55,7 +55,7 @@
 
       - name: display download results
         debug:
-          vars: apr_download
+          var: apr_download
 
       # - name: Extract httpd and dependencies
       #   shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
