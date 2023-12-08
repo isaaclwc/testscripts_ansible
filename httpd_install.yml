@@ -31,6 +31,10 @@
           validate_certs: no
         register: httpd_download
 
+      - name: display downloaded results
+        debug:
+          var: httpd_download
+
       - name: Download latest httpd and dependencies
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
