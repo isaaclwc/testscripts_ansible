@@ -5,147 +5,147 @@
     become: yes
 
     tasks:
-    - name: Install prerequisites
-      yum:
-        name: "{{ item }}"
-        state: present
+      - name: Install prerequisites
+        yum:
+          name: "{{ item }}"
+          state: present
+          with_items:
+            - autoconf
+            - expat-devel
+            - libtool
+            - libnghttp2.i686
+            - pcre-devel
+            - openssl-devel
+            - make
+            - python3
+            - firewalld
+
+      - name: Download latest httpd and dependencies
+        get_url:
+          url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
+          dest: /opt/installer/
+          register: httpd_download
+
+      - name: Download latest httpd and dependencies
+        get_url:
+          url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
+          dest: /opt/installer/
+          register: apr_download
+
+      - name: Download latest httpd and dependencies
+        get_url:
+          url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
+          dest: /opt/installer/
+          register: apr_util_download
+
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: /opt/installer/
         with_items:
-          - autoconf
-          - expat-devel
-          - libtool
-          - libnghttp2.i686
-          - pcre-devel
-          - openssl-devel
-          - make
-          - python3
-          - firewalld
+          - httpd-2.4.48
+        register: httpd_extracted
 
-    - name: Download latest httpd and dependencies
-      get_url:
-        url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
-        dest: /opt/installer/
-        register: httpd_download
-
-    - name: Download latest httpd and dependencies
-      get_url:
-        url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
-        dest: /opt/installer/
-        register: apr_download
-
-    - name: Download latest httpd and dependencies
-      get_url:
-        url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
-        dest: /opt/installer/
-        register: apr_util_download
-
-    - name: Extract httpd and dependencies
-      shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      args:
-        chdir: /opt/installer/
-      with_items:
-        - httpd-2.4.48
-      register: httpd_extracted
-
-    - name: Extract httpd and dependencies
-      shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      args:
-        chdir: /opt/installer/
-      with_items:
-        - apr-1.7.0
-      register: apr_extracted
-
-    - name: Extract httpd and dependencies
-      shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      args:
-        chdir: /opt/installer/
-      with_items:
-        - apr-util-1.6.1
-      register: apr-util_extracted
-
-    - name: Copy apr files to httpd
-      shell: "cp -r /opt/installer/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
-      args:
-        chdir: /opt/installer/
-      with_items:
-        - "{{ apr_extracted.stdout }}"
-        - "{{ apr-util_extracted.stdout }}"
-
-    - name: Select the default Python
-      shell: "sudo alternatives --config python"
-
-    - name: Compile httpd
-      command: |
-        ./buildconf
-        ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
-      args:
-        chdir: /opt/installer/{{ httpd_extracted.stdout }}/
-      register: prefix_result
-
-    - name: Install httpd
-      command: |
-        make
-        sudo make install
-      args:
-        chdir: /opt/installer/{{ httpd_extracted.stdout }}/
-      
-    # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
-    #   # Add tasks to configure httpd.conf and SSL
-    #   # Use ansible.builtin.template or ansible.builtin.copy to manage configuration files
-
-    - name: Create user and group with no login and no home
-      group:
-        name: apache
-        state: present
-
-    - name: Create Apache user
-      user:
-        name: apache
-        group: apache
-        shell: /sbin/nologin
-        system: yes
-
-    - name: Change directory ownership
-      file:
-        path: "{{ prefix_result.stdout }}"
-        owner: apache
-        group: apache
-        recurse: yes
-
-    - name: Create httpd.service file with content
-      copy:
-        content: |
-          [Unit]
-          Description=The Apache HTTP
-          After=network.target
-
-          [Service]
-          Type=forking
-          ExecStart={{ prefix_result.stdout }}/bin/apachectl -k start
-          ExecReload={{ prefix_result.stdout }}/bin/apachectl -k graceful
-          ExecStop={{ prefix_result.stdout }}/bin/apachectl -k graceful-stop
-          PIDFile={{ prefix_result.stdout }}/logs/httpd.pid
-
-          PrivateTmp=true
-
-          [Install]
-          WantedBy=multi-user.target
-        dest: /etc/systemd/system/httpd.service
-      register: destination_result
-
-    - name: Enable and start httpd service
-      shell: "systemctl start {{ destination_result.dest }}"
-
-    - name: Configure firewalld
-      service:
-        name: firewalld
-        state: started
-        enabled: yes
-
-    - name: Add listening ports
-      firewalld:
-        zone: public
-        port: "{{ item }}/tcp"
-        permanent: yes
-        state: enabled
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: /opt/installer/
         with_items:
-          - 443
+          - apr-1.7.0
+        register: apr_extracted
+
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: /opt/installer/
+        with_items:
+          - apr-util-1.6.1
+        register: apr-util_extracted
+
+      - name: Copy apr files to httpd
+        shell: "cp -r /opt/installer/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
+        args:
+          chdir: /opt/installer/
+        with_items:
+          - "{{ apr_extracted.stdout }}"
+          - "{{ apr-util_extracted.stdout }}"
+
+      - name: Select the default Python
+        shell: "sudo alternatives --config python"
+
+      - name: Compile httpd
+        command: |
+          ./buildconf
+          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
+        args:
+          chdir: /opt/installer/{{ httpd_extracted.stdout }}/
+        register: prefix_result
+
+      - name: Install httpd
+        command: |
+          make
+          sudo make install
+        args:
+          chdir: /opt/installer/{{ httpd_extracted.stdout }}/
+        
+      # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
+      #   # Add tasks to configure httpd.conf and SSL
+      #   # Use ansible.builtin.template or ansible.builtin.copy to manage configuration files
+
+      - name: Create user and group with no login and no home
+        group:
+          name: apache
+          state: present
+
+      - name: Create Apache user
+        user:
+          name: apache
+          group: apache
+          shell: /sbin/nologin
+          system: yes
+
+      - name: Change directory ownership
+        file:
+          path: "{{ prefix_result.stdout }}"
+          owner: apache
+          group: apache
+          recurse: yes
+
+      - name: Create httpd.service file with content
+        copy:
+          content: |
+            [Unit]
+            Description=The Apache HTTP
+            After=network.target
+
+            [Service]
+            Type=forking
+            ExecStart={{ prefix_result.stdout }}/bin/apachectl -k start
+            ExecReload={{ prefix_result.stdout }}/bin/apachectl -k graceful
+            ExecStop={{ prefix_result.stdout }}/bin/apachectl -k graceful-stop
+            PIDFile={{ prefix_result.stdout }}/logs/httpd.pid
+
+            PrivateTmp=true
+
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/httpd.service
+        register: destination_result
+
+      - name: Enable and start httpd service
+        shell: "systemctl start {{ destination_result.dest }}"
+
+      - name: Configure firewalld
+        service:
+          name: firewalld
+          state: started
+          enabled: yes
+
+      - name: Add listening ports
+        firewalld:
+          zone: public
+          port: "{{ item }}/tcp"
+          permanent: yes
+          state: enabled
+          with_items:
+            - 443
