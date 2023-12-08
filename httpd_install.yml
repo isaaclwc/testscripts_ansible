@@ -55,31 +55,43 @@
 
       - name: display download results
         debug:
-          var: apr_download
+          var: apr-util_download
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      #   args:
-      #     chdir: "{{ directory_result.stdout }}"
-      #   with_items:
-      #     - httpd-2.4.48
-      #   register: httpd_extracted
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: "{{ directory_result.path }}"
+        with_items:
+          - "{{ httpd_download.dest }}"
+        register: httpd_extracted
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      #   args:
-      #     chdir: "{{ directory_result.stdout }}"
-      #   with_items:
-      #     - apr-1.7.0
-      #   register: apr_extracted
+      - name: display extracted results
+        debug:
+          var: httpd_extracted
 
-      # - name: Extract httpd and dependencies
-      #   shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
-      #   args:
-      #     chdir: "{{ directory_result.stdout }}"
-      #   with_items:
-      #     - apr-util-1.6.1
-      #   register: apr-util_extracted
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: "{{ directory_result.path }}"
+        with_items:
+          - "{{ apr_download.dest }}"
+        register: apr_extracted
+
+      - name: display extracted results
+        debug:
+          var: apr_extracted
+
+      - name: Extract httpd and dependencies
+        shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
+        args:
+          chdir: "{{ directory_result.path }}"
+        with_items:
+          - "{{ apr-util_download.dest }}"
+        register: apr-util_extracted
+
+      - name: display extracted results
+        debug:
+          var: apr-util_extracted
 
       # - name: Copy apr files to httpd
       #   shell: "cp -r {{ directory_result.stdout }}/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
