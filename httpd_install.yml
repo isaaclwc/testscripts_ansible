@@ -12,7 +12,6 @@
           - autoconf
           - expat-devel
           - libtool
-          - libnghttp2.i686
           - pcre-devel
           - openssl-devel
           - make
