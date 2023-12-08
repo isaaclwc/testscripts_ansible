@@ -18,31 +18,37 @@
           - python3
           - firewalld
 
+      - name: create installer directory
+        file:
+          path: /opt/installer
+          state: directory
+        register: directory_result
+
       - name: Download latest httpd and dependencies
         get_url:
           url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
-          dest: /opt/installer/
+          dest: "{{ directory_result.stdout }}"
           validate_certs: no
         register: httpd_download
 
       - name: Download latest httpd and dependencies
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
-          dest: /opt/installer/
+          dest: "{{ directory_result.stdout }}"
           validate_certs: no
         register: apr_download
 
       - name: Download latest httpd and dependencies
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
-          dest: /opt/installer/
+          dest: "{{ directory_result.stdout }}"
           validate_certs: no
         register: apr_util_download
 
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
         args:
-          chdir: /opt/installer/
+          chdir: "{{ directory_result.stdout }}"
         with_items:
           - httpd-2.4.48
         register: httpd_extracted
@@ -50,7 +56,7 @@
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
         args:
-          chdir: /opt/installer/
+          chdir: "{{ directory_result.stdout }}"
         with_items:
           - apr-1.7.0
         register: apr_extracted
@@ -58,15 +64,15 @@
       - name: Extract httpd and dependencies
         shell: "tar -zxvf /opt/installer/{{ item }}.tar.gz"
         args:
-          chdir: /opt/installer/
+          chdir: "{{ directory_result.stdout }}"
         with_items:
           - apr-util-1.6.1
         register: apr-util_extracted
 
       - name: Copy apr files to httpd
-        shell: "cp -r /opt/installer/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
+        shell: "cp -r {{ directory_result.stdout }}/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
         args:
-          chdir: /opt/installer/
+          chdir: "{{ directory_result.stdout }}"
         with_items:
           - "{{ apr_extracted.stdout }}"
           - "{{ apr-util_extracted.stdout }}"
@@ -79,7 +85,7 @@
           ./buildconf
           ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
         args:
-          chdir: /opt/installer/{{ httpd_extracted.stdout }}/
+          chdir: "{{ directory_result.stdout }}/{{ httpd_extracted.stdout }}"
         register: prefix_result
 
       - name: Install httpd
@@ -87,7 +93,7 @@
           make
           sudo make install
         args:
-          chdir: /opt/installer/{{ httpd_extracted.stdout }}/
+          chdir: "{{ directory_result.stdout }}/{{ httpd_extracted.stdout }}"
         
       # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
       #   # Add tasks to configure httpd.conf and SSL
