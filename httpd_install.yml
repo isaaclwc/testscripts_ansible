@@ -8,16 +8,16 @@
         yum:
           name: "{{ item }}"
           state: present
-          with_items:
-            - autoconf
-            - expat-devel
-            - libtool
-            - libnghttp2.i686
-            - pcre-devel
-            - openssl-devel
-            - make
-            - python3
-            - firewalld
+        with_items:
+          - autoconf
+          - expat-devel
+          - libtool
+          - libnghttp2.i686
+          - pcre-devel
+          - openssl-devel
+          - make
+          - python3
+          - firewalld
 
       - name: Download latest httpd and dependencies
         get_url:
