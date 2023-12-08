@@ -1,0 +1,19 @@
+---
+  - name: Install prerequisites
+    hosts: httpd_servers
+    become: yes
+
+    tasks:
+      - name: install services and plugin
+        yum:
+          name: "{{ item }}"
+          state: present
+        with_items:
+          - nano
+          - epel-release
+          - net-tools
+
+      - name: ensre all packages updated
+        yum:
+          name: "*"
+          state: latest
