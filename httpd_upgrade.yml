@@ -9,47 +9,163 @@
           name: httpd_old
           state: stopped
 
-      - name: Download latest httpd and dependencies
-        get_url:
-          url: "{{ item.url }}"
-          dest: "{{ item.dest }}"
-        with_items:
-          - { url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz", dest: "/opt/installer/httpd-2.4.48.tar.gz" }
-          - { url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz", dest: "/opt/installer/apr-1.7.0.tar.gz" }
-          - { url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz", dest: "/opt/installer/apr-util-1.6.1.tar.gz" }
+      #######################################################################################################
 
-      - name: Extract the installers
-        shell: "tar -zxvf {{ item }}.tar.gz"
-        args:
-          chdir: /opt/installer
-        with_items:
-          - httpd-2.4.48
-          - apr-1.7.0
-          - apr-util-1.6.1
+      - name: Get installer directory httpd
+        set_fact:
+          httpd_installer_path: /opt/installer/httpd-2.4.48.tar.gz
+
+      - name: display installer directory httpd
+        debug:
+          var: httpd_installer_path
+
+      - name: Get installer directory apr
+        set_fact:
+          apr_installer_path: /opt/installer/apr-1.7.0.tar.gz
+
+      - name: display installer directory apr
+        debug:
+          var: apr_installer_path
+
+      - name: Get installer directory apr-util
+        set_fact:
+          apr_util_installer_path: /opt/installer/apr-util-1.6.1.tar.gz
+
+      - name: display installer directory util
+        debug:
+          var: apr_util_installer_path
+
+      #######################################################################################################
+
+      # - name: Download installer httpd
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: httpd_download
+
+      # - name: display httpd_download
+      #   debug:
+      #     var: httpd_download
+
+      # - name: Download installer apr
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: apr_download
+
+      # - name: display apr_download
+      #   debug:
+      #     var: apr_download
+
+      # - name: Download installer apr-util
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: apr_util_download
+
+      # - name: display apr_util_download
+      #   debug:
+      #     var: apr_util_download
+
+      #######################################################################################################
+
+      - name: Extract apr
+        unarchive: 
+          src: "{{ apr_installer_path }}"
+          dest: "{{ directory_result.path }}"
+          remote_src: yes
+        register: apr_extracted
+
+      - name: display apr_extracted
+        debug:
+          var: apr_extracted  
+
+      - name: omit .tar.gz apr
+        set_fact:
+          apr_directory_path: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: Display directory without extension apr
+        debug:
+          var: apr_directory_path
+      
+      - name: Extract apr name
+        set_fact:
+          apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('^([^\\-]+).*$', '\\1') }}"
+
+      - name: Display apr name
+        debug:
+          var: apr_directory_name
+
+      #######################################################################################################
+      - name: Extract apr-util
+        unarchive: 
+          src: "{{ apr_util_installer_path }}"
+          dest: "{{ directory_result.path }}"
+          remote_src: yes
+        register: apr_util_extracted
+
+      - name: display apr_util_extracted
+        debug:
+          var: apr_util_extracted  
+
+      - name: omit .tar.gz apr
+        set_fact:
+          apr_util_directory_path: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: Display omiited extension apr-util
+        debug:
+          var: apr_util_directory_path
+
+      - name: extract apr-util name
+        set_fact: 
+          apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
+
+      - name:  apr-util
+        debug:
+          var: apr_util_directory_name
+
+      #######################################################################################################
 
       - name: Copy apr files to httpd
-        shell: "cp -r {{ item }} httpd-2.4.48/srclib/{{ item }}"
-        args:
-          chdir: /opt/installer
-        with_items:
-          - apr-1.7.0
-          - apr-util-1.6.1
+        shell: "cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+        register: copied_apr_files
 
-      - name: Select the default Python
-        shell: "sudo alternatives --config python"
+      - name: Copy apr-util files to httpd
+        shell: "cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+        register: copied_apr_files
 
-      - name: Compile httpd installer
-        command: |
+      #######################################################################################################
+
+      # - name: Select the default Python
+      #   command: "alternatives --config python"
+
+      - name: Compile httpd
+        shell: |
           ./buildconf
-          ./configure --with-included-apr --prefix=/opt/apache2.4.48_OLD/ --enable-ssl --enable-so
+          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
+        args:
+          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+        register: prefix_result
+
+      - name: Display prefix_result
+        debug:
+          var: prefix_result
+
+      - name: Install httpd
+        shell: |
           make
           sudo make install
         args:
-          chdir: /opt/installer/httpd-2.4.48
+          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+
+      ######################################################################################################
 
       - name: Change directory ownership
         file:
-          path: /opt/apache2.4.48_OLD/
+          path: /opt/apache2.4.48_NEW/
           owner: apache
           group: apache
           recurse: yes
@@ -116,3 +232,42 @@
         service:
           name: httpd_new
           state: started
+
+
+      # - name: Download latest httpd and dependencies
+      #   get_url:
+      #     url: "{{ item.url }}"
+      #     dest: "{{ item.dest }}"
+      #   with_items:
+      #     - { url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz", dest: "/opt/installer/httpd-2.4.48.tar.gz" }
+      #     - { url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz", dest: "/opt/installer/apr-1.7.0.tar.gz" }
+      #     - { url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz", dest: "/opt/installer/apr-util-1.6.1.tar.gz" }
+
+      # - name: Extract the installers
+      #   shell: "tar -zxvf {{ item }}.tar.gz"
+      #   args:
+      #     chdir: /opt/installer
+      #   with_items:
+      #     - httpd-2.4.48
+      #     - apr-1.7.0
+      #     - apr-util-1.6.1
+
+      # - name: Copy apr files to httpd
+      #   shell: "cp -r {{ item }} httpd-2.4.48/srclib/{{ item }}"
+      #   args:
+      #     chdir: /opt/installer
+      #   with_items:
+      #     - apr-1.7.0
+      #     - apr-util-1.6.1
+
+      # - name: Select the default Python
+      #   shell: "sudo alternatives --config python"
+
+      # - name: Compile httpd installer
+      #   command: |
+      #     ./buildconf
+      #     ./configure --with-included-apr --prefix=/opt/apache2.4.48_NEW/ --enable-ssl --enable-so
+      #     make
+      #     sudo make install
+      #   args:
+      #     chdir: /opt/installer/httpd-2.4.48_NEW
