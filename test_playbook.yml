@@ -1,18 +1,18 @@
 ---
-  - name: Install prerequisites and set up Apache HTTPD on CentOS 7
-    hosts: httpd_servers
-    gather_facts: no
-    become: yes
-    tasks:
-      - name: create installer directory
-        file:
-          path: /opt/installer
-          state: directory
-        register: directory_result
+  # - name: Install prerequisites and set up Apache HTTPD on CentOS 7
+  #   hosts: httpd_servers
+  #   gather_facts: no
+  #   become: yes
+  #   tasks:
+  #     - name: create installer directory
+  #       file:
+  #         path: /opt/installer
+  #         state: directory
+  #       register: directory_result
         
-      - name: show registered directory
-        debug:
-          var: directory_result
+  #     - name: show registered directory
+  #       debug:
+  #         var: directory_result
 
       # - name: Extract httpd and dependencies
       #   shell: "tar -zxvf {{ item }}"
@@ -31,3 +31,44 @@
       #   with_items:
       #     - "{{ apr-util_download.dest }}"
       #   register: apr-util_extracted
+
+      # - name: extract apr-util only
+      #   set_fact:
+      #     apr_util_name: "{{ apr_util_directory_name | split('-')[0] }}"
+
+      # - name: Display name apr-util
+      #   debug:
+      #     var: apr_util_name
+
+      # - name: Copy apr files to httpd
+      #   copy:
+      #     src: "{{ httpd_extracted.dest }}"
+      #     dest: "{{ httpd_extracted.dest }}/srclib/{{  }}"
+
+      # - name: Copy apr files to httpd
+      #   shell: "cp -r {{ directory_result.stdout }}/{{ item }} {{ httpd_extracted.stdout }}/srclib/{{ item }}"
+      #   args:
+      #     chdir: "{{ directory_result.stdout }}"
+      #   with_items:
+      #     - "{{ apr_extracted.stdout }}"
+      #     - "{{ apr-util_extracted.stdout }}"
+
+      # - name: Copy apr files to httpd
+      #   copy:
+      #     src: "{{ directory_result.path }}/{{ apr_directory_path }}"
+      #     dest: "{{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+      #     remote_src: yes
+      #     recurse: yes
+      #   register: copied_apr_files
+
+      # - name: Copy apr-util files to httpd
+      #   copy:
+      #     src: "{{ directory_result.path }}/{{ apr_util_directory_path }}"
+      #     dest: "{{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+      #     remote_src: yes
+      #     recurse: yes
+      #   register: copied_apr_util_files
+
+          ##{{ apr-util-1.6.1 | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('-.*', '') }}
+
+          ##apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"

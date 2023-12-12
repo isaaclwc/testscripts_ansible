@@ -11,6 +11,10 @@
           state: directory
         register: directory_result
 
+      - name: display directory_result
+        debug:
+          var: directory_result
+
       #######################################################################################################
       - name: Download installer httpd
         get_url:
@@ -19,12 +23,20 @@
           validate_certs: no
         register: httpd_download
 
+      - name: display httpd_download
+        debug:
+          var: httpd_download
+
       - name: Download installer apr
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
           dest: "{{ directory_result.path }}"
           validate_certs: no
         register: apr_download
+
+      - name: display apr_download
+        debug:
+          var: apr_download
 
       - name: Download installer apr-util
         get_url:
@@ -33,6 +45,10 @@
           validate_certs: no
         register: apr_util_download
 
+      - name: display apr_util_download
+        debug:
+          var: apr_util_download
+
       #######################################################################################################
       - name: Extract httpd
         unarchive: 
@@ -40,6 +56,10 @@
           dest: "{{ directory_result.path }}"
           remote_src: yes
         register: httpd_extracted
+
+      - name: display httpd_extracted
+        debug:
+          var: httpd_extracted
 
       - name: omit .tar.gz httpd
         set_fact:
@@ -57,11 +77,23 @@
           remote_src: yes
         register: apr_extracted
 
+      - name: display apr_extracted
+        debug:
+          var: apr_extracted  
+
       - name: omit .tar.gz apr
         set_fact:
-          apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+          apr_directory_path: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
       - name: Display directory without extension apr
+        debug:
+          var: apr_directory_path
+      
+      - name: Extract apr name
+        set_fact:
+          apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('^([^\\-]+).*$', '\\1') }}"
+
+      - name: Display apr name
         debug:
           var: apr_directory_name
 
@@ -73,22 +105,58 @@
           remote_src: yes
         register: apr_util_extracted
 
+      - name: display apr_util_extracted
+        debug:
+          var: apr_util_extracted  
+
       - name: omit .tar.gz apr
         set_fact:
-          apr_util_directory_name: "{{ apr_util_download.dest | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
-          ##apr_util_directory_name: "(( {{ apr_util_download.dest | basename | regex_replace('\\.tar\\.gz$', '') }}"
-          ##{{ apr-util-1.6.1 | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('-.*', '') }}
+          apr_util_directory_path: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
       - name: Display omiited extension apr-util
         debug:
+          var: apr_util_directory_path
+
+      - name: extract apr-util name
+        set_fact: 
+          apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
+
+      - name:  apr-util
+        debug:
           var: apr_util_directory_name
 
-      # - name: extract apr-util only
-      #   set_fact:
-      #     apr_util_name: "{{ apr_util_directory_name | split('-')[0] }}"
+      #######################################################################################################
 
-      # - name: Display name apr-util
-      #   debug:
-      #     var: apr_util_name
+      - name: Copy apr files to httpd
+        shell: "cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+        register: copied_apr_files
 
-      
+      - name: Copy apr-util files to httpd
+        shell: "cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+        register: copied_apr_files
+
+      #######################################################################################################
+
+      - name: Select the default Python
+        shell: "sudo alternatives --config python"
+
+      - name: Compile httpd
+        command: |
+          ./buildconf
+          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
+        args:
+          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+        register: prefix_result
+
+      - name: Display prefix_result
+        debug:
+          var: prefix_result
+
+      - name: Install httpd
+        command: |
+          make
+          sudo make install
+        args:
+          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+
+      ######################################################################################################
