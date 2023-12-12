@@ -16,43 +16,71 @@
           var: directory_result
 
       #######################################################################################################
-      - name: Download installer httpd
-        get_url:
-          url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
-          dest: "{{ directory_result.path }}"
-          validate_certs: no
-        register: httpd_download
 
-      - name: display httpd_download
+      - name: Get installer directory httpd
+        set_fact:
+          httpd_installer_path: /opt/installer/httpd-2.4.48.tar.gz
+
+      - name: display installer directory httpd
         debug:
-          var: httpd_download
+          var: httpd_installer_path
 
-      - name: Download installer apr
-        get_url:
-          url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
-          dest: "{{ directory_result.path }}"
-          validate_certs: no
-        register: apr_download
+      - name: Get installer directory apr
+        set_fact:
+          apr_installer_path: /opt/installer/apr-1.7.0.tar.gz
 
-      - name: display apr_download
+      - name: display installer directory apr
         debug:
-          var: apr_download
+          var: apr_installer_path
 
-      - name: Download installer apr-util
-        get_url:
-          url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
-          dest: "{{ directory_result.path }}"
-          validate_certs: no
-        register: apr_util_download
+      - name: Get installer directory apr-util
+        set_fact:
+          apr_util_installer_path: /opt/installer/apr-util-1.6.1.tar.gz
 
-      - name: display apr_util_download
+      - name: display installer directory util
         debug:
-          var: apr_util_download
+          var: apr_util_installer_path
 
       #######################################################################################################
+
+      # - name: Download installer httpd
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: httpd_download
+
+      # - name: display httpd_download
+      #   debug:
+      #     var: httpd_download
+
+      # - name: Download installer apr
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: apr_download
+
+      # - name: display apr_download
+      #   debug:
+      #     var: apr_download
+
+      # - name: Download installer apr-util
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
+      #     dest: "{{ directory_result.path }}"
+      #     validate_certs: no
+      #   register: apr_util_download
+
+      # - name: display apr_util_download
+      #   debug:
+      #     var: apr_util_download
+
+      #######################################################################################################
+
       - name: Extract httpd
         unarchive: 
-          src: "{{ httpd_download.dest }}"
+          src: "{{ httpd_installer_path }}"
           dest: "{{ directory_result.path }}"
           remote_src: yes
         register: httpd_extracted
@@ -72,7 +100,7 @@
       #######################################################################################################
       - name: Extract apr
         unarchive: 
-          src: "{{ apr_download.dest }}"
+          src: "{{ apr_installer_path }}"
           dest: "{{ directory_result.path }}"
           remote_src: yes
         register: apr_extracted
@@ -100,7 +128,7 @@
       #######################################################################################################
       - name: Extract apr-util
         unarchive: 
-          src: "{{ apr_util_download.dest }}"
+          src: "{{ apr_util_installer_path }}"
           dest: "{{ directory_result.path }}"
           remote_src: yes
         register: apr_util_extracted
@@ -137,11 +165,11 @@
 
       #######################################################################################################
 
-      - name: Select the default Python
-        shell: "sudo alternatives --config python"
+      # - name: Select the default Python
+      #   command: "alternatives --config python"
 
       - name: Compile httpd
-        command: |
+        shell: |
           ./buildconf
           ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
         args:
@@ -153,7 +181,7 @@
           var: prefix_result
 
       - name: Install httpd
-        command: |
+        shell: |
           make
           sudo make install
         args:

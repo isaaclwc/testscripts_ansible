@@ -1,9 +1,11 @@
----
-  # - name: Install prerequisites and set up Apache HTTPD on CentOS 7
-  #   hosts: httpd_servers
-  #   gather_facts: no
-  #   become: yes
-  #   tasks:
+# ---
+#   - name: test playbook
+#     hosts: httpd_servers
+#     gather_facts: no
+#     become: yes
+#     tasks:
+
+
   #     - name: create installer directory
   #       file:
   #         path: /opt/installer
