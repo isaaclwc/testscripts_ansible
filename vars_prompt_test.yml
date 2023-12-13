@@ -1,0 +1,25 @@
+---
+  - name: test user input
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+
+    vars_prompt:
+      - name: httpd_service_name
+        prompt: "Please input existing httpd service name"
+        private: no
+        register: httpd_service_name
+
+      - name: apache_name
+        prompt: "Please input desired new apache folder name"
+        private: no
+        register: apache_name
+
+    tasks:
+      - name: display httpd service name
+        debug:
+          var: httpd_service_name
+
+      - name: display apache name
+        debug:
+          var: apache_name

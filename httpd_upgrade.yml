@@ -3,11 +3,29 @@
     hosts: httpd_servers
     gather_facts: no
     become: yes
+
+    vars_prompt:
+      - name: httpd_service_name
+        prompt: "Please input existing httpd service name"
+        private: no
+        register: existing_httpd_service_name
+
+      - name: httpd version
+        prompt: "Please input the new httpd version to be downloaded"
+        private: no
+        register: httpd_upgrade_version_name
+
+      - name: apache_name
+        prompt: "Please input desired new apache folder name"
+        private: no
+        register: apache_name
+
     tasks:
       - name: Stop httpd_old service
-        service:
-          name: httpd-2.4.48
-          state: stopped
+        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
+
+      - name: disable previous httpd service
+        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
 
       #######################################################################################################
 
@@ -46,7 +64,7 @@
       - name: Compile httpd
         shell: |
           ./buildconf
-          ./configure --with-included-apr --prefix=/opt/apache2.4.54/ --enable-ssl --enable-so
+          ./configure --with-included-apr --prefix=/opt/{{ apache_name }}/ --enable-ssl --enable-so
           make
           sudo make install
         args:
@@ -57,7 +75,7 @@
 
       - name: Change directory ownership
         file:
-          path: /opt/apache2.4.54/
+          path: "/opt/{{ apache_name }}/"
           owner: apache
           group: apache
           recurse: yes
