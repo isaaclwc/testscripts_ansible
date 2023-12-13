@@ -4,20 +4,22 @@
     gather_facts: no
     become: yes
     tasks:
-      # - name: Install prerequisites
-      #   yum:
-      #     name: "{{ item }}"
-      #     state: present
-      #   with_items:
-      #     - autoconf
-      #     - expat-devel
-      #     - libtool
-      #     - pcre-devel
-      #     - openssl-devel
-      #     - make
-      #     - python3
-      #     - firewalld
+      - name: Install prerequisites
+        yum:
+          name: "{{ item }}"
+          state: present
+        with_items:
+          - autoconf
+          - expat-devel
+          - libtool
+          - pcre-devel
+          - openssl-devel
+          - libnghttp2
+          - make
+          - python3
+          - firewalld
 
+      #######################################################################################################
       - name: create installer directory
         file:
           path: /opt/installer
@@ -28,7 +30,9 @@
         debug:
           var: directory_result
 
-      - name: Download latest httpd and dependencies
+      #######################################################################################################
+
+      - name: Download installer httpd
         get_url:
           url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
           dest: "{{ directory_result.path }}"
@@ -39,7 +43,7 @@
         debug:
           var: httpd_download
 
-      - name: Download latest httpd and dependencies
+      - name: Download installer apr
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
           dest: "{{ directory_result.path }}"
@@ -50,7 +54,7 @@
         debug:
           var: apr_download
 
-      - name: Download latest httpd and dependencies
+      - name: Download installer apr-util
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
           dest: "{{ directory_result.path }}"
@@ -60,6 +64,8 @@
       - name: display apr_util_download
         debug:
           var: apr_util_download
+
+      #######################################################################################################
 
       - name: Extract httpd
         unarchive: 
@@ -72,15 +78,15 @@
         debug:
           var: httpd_extracted
 
-      - name: Extract directory name from file path httpd
+      - name: omit .tar.gz httpd
         set_fact:
-          directory_name: "{{ httpd_extracted.src | basename | regex_replace('-(.*)$', '') }}"
-        register: http_directory
+          httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
-      - name: Display directory name httpd
+      - name: Display directory without extension httpd
         debug:
-          var: http_directory
+          var: httpd_directory_name
 
+      #######################################################################################################
       - name: Extract apr
         unarchive: 
           src: "{{ apr_download.dest }}"
@@ -90,17 +96,25 @@
 
       - name: display apr_extracted
         debug:
-          var: apr_extracted
+          var: apr_extracted  
 
-      - name: Extract directory name from file path apr
+      - name: omit .tar.gz apr
         set_fact:
-          directory_name: "{{ apr_extracted.src | basename | regex_replace('-(.*)$', '') }}"
-        register: apr_directory
+          apr_directory_path: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
-      - name: Display directory name apr
+      - name: Display directory without extension apr
         debug:
-          var: apr_directory
+          var: apr_directory_path
+      
+      - name: Extract apr name
+        set_fact:
+          apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('^([^\\-]+).*$', '\\1') }}"
 
+      - name: Display apr name
+        debug:
+          var: apr_directory_name
+
+      #######################################################################################################
       - name: Extract apr-util
         unarchive: 
           src: "{{ apr_util_download.dest }}"
@@ -110,34 +124,54 @@
 
       - name: display apr_util_extracted
         debug:
-          var: apr_util_extracted
+          var: apr_util_extracted  
 
-      - name: Extract directory name from file path apr
+      - name: omit .tar.gz apr
         set_fact:
-          apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
-        register: apr_util_directory
+          apr_util_directory_path: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
-      - name: Display directory name apr
+      - name: Display omiited extension apr-util
         debug:
-          var: apr_util_directory
+          var: apr_util_directory_path
 
-      - name: Select the default Python
-        shell: "sudo alternatives --config python"
+      - name: extract apr-util name
+        set_fact: 
+          apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
+
+      - name:  apr-util
+        debug:
+          var: apr_util_directory_name
+
+      #######################################################################################################
+
+      - name: Copy apr files to httpd
+        shell: "cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+        register: copied_apr_files
+
+      - name: Copy apr-util files to httpd
+        shell: "cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+        register: copied_apr_util_files
+
+      #######################################################################################################
+
+      # - name: Select the default Python
+      #   command: "alternatives --config python"
 
       - name: Compile httpd
-        command: |
+        shell: |
           ./buildconf
-          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so | grep -oP -- '--prefix=\K[^ ]+'
-        args:
-          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
-        register: prefix_result
-
-      - name: Install httpd
-        command: |
+          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so
           make
           sudo make install
         args:
           chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+        register: installed_httpd
+
+      - name: display installed_httpd facts
+        debug:
+          var: installed_httpd
+
+      ######################################################################################################
         
       # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
       #   # Add tasks to configure httpd.conf and SSL
@@ -157,7 +191,7 @@
 
       - name: Change directory ownership
         file:
-          path: "{{ prefix_result.stdout }}"
+          path: /opt/apache2.4.48/
           owner: apache
           group: apache
           recurse: yes
@@ -171,32 +205,32 @@
 
             [Service]
             Type=forking
-            ExecStart={{ prefix_result.stdout }}/bin/apachectl -k start
-            ExecReload={{ prefix_result.stdout }}/bin/apachectl -k graceful
-            ExecStop={{ prefix_result.stdout }}/bin/apachectl -k graceful-stop
-            PIDFile={{ prefix_result.stdout }}/logs/httpd.pid
+            ExecStart=/opt/apache2.4.48//bin/apachectl -k start
+            ExecReload=/opt/apache2.4.48//bin/apachectl -k graceful
+            ExecStop=/opt/apache2.4.48//bin/apachectl -k graceful-stop
+            PIDFile=/opt/apache2.4.48//logs/httpd.pid
 
             PrivateTmp=true
 
             [Install]
             WantedBy=multi-user.target
           dest: /etc/systemd/system/httpd.service
-        register: destination_result
+        register: httpd_service
 
-      - name: Enable and start httpd service
-        shell: "systemctl start {{ destination_result.dest }}"
+      # - name: Enable and start httpd service
+      #   shell: "systemctl start {{ destination_result.dest }}"
 
-      - name: Configure firewalld
-        service:
-          name: firewalld
-          state: started
-          enabled: yes
+      # - name: Configure firewalld
+      #   service:
+      #     name: firewalld
+      #     state: started
+      #     enabled: yes
 
-      - name: Add listening ports
-        firewalld:
-          zone: public
-          port: "{{ item }}/tcp"
-          permanent: yes
-          state: enabled
-        with_items:
-          - 443
+      # - name: Add listening ports
+      #   firewalld:
+      #     zone: public
+      #     port: "{{ item }}/tcp"
+      #     permanent: yes
+      #     state: enabled
+      #   with_items:
+      #     - 443
