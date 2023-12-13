@@ -152,8 +152,16 @@
           chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
         register: installed_httpd
 
-      - name: display installed_httpd facts
+      - name: display installed_httpd result
         debug:
           var: installed_httpd
+
+      # - name: Get prefix from configure command
+      #   set_fact:
+      #     httpd_prefix: "{{ installed_httpd.stdout_lines | map('regex_search', '^.*--prefix=(.*) --enable-ssl.*$', '\\1') | list | first }}"
+
+      # - name: display installed_httpd facts
+      #   debug:
+      #     var: httpd_prefix
 
       ######################################################################################################

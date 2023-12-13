@@ -1,34 +1,34 @@
----
-  - name: test playbook
-    hosts: httpd_servers
-    gather_facts: no
-    become: yes
-    tasks:
+# ---
+#   - name: test playbook
+#     hosts: httpd_servers
+#     gather_facts: no
+#     become: yes
+#     tasks:
 
-      - name: Create httpd.service file with content
-        copy:
-          content: |
-            [Unit]
-            Description=The Apache HTTP
-            After=network.target
+#       - name: Create httpd.service file with content
+#         copy:
+#           content: |
+#             [Unit]
+#             Description=The Apache HTTP
+#             After=network.target
 
-            [Service]
-            Type=forking
-            ExecStart=/opt/apache2.4.48//bin/apachectl -k start
-            ExecReload=/opt/apache2.4.48//bin/apachectl -k graceful
-            ExecStop=/opt/apache2.4.48//bin/apachectl -k graceful-stop
-            PIDFile=/opt/apache2.4.48//logs/httpd.pid
+#             [Service]
+#             Type=forking
+#             ExecStart=/opt/apache2.4.48//bin/apachectl -k start
+#             ExecReload=/opt/apache2.4.48//bin/apachectl -k graceful
+#             ExecStop=/opt/apache2.4.48//bin/apachectl -k graceful-stop
+#             PIDFile=/opt/apache2.4.48//logs/httpd.pid
 
-            PrivateTmp=true
+#             PrivateTmp=true
 
-            [Install]
-            WantedBy=multi-user.target
-          dest: /etc/systemd/system/httpd.service
-        register: httpd_service
+#             [Install]
+#             WantedBy=multi-user.target
+#           dest: /etc/systemd/system/httpd.service
+#         register: httpd_service
 
-      - name: display service facts
-        debug:
-          var: httpd_service
+#       - name: display service facts
+#         debug:
+#           var: httpd_service
 
 
   #     - name: create installer directory
@@ -123,3 +123,41 @@
       # - name: display installer directory util
       #   debug:
       #     var: apr_util_installer_path
+
+      # - name: Download latest httpd and dependencies
+      #   get_url:
+      #     url: "{{ item.url }}"
+      #     dest: "{{ item.dest }}"
+      #   with_items:
+      #     - { url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz", dest: "/opt/installer/httpd-2.4.48.tar.gz" }
+      #     - { url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz", dest: "/opt/installer/apr-1.7.0.tar.gz" }
+      #     - { url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz", dest: "/opt/installer/apr-util-1.6.1.tar.gz" }
+
+      # - name: Extract the installers
+      #   shell: "tar -zxvf {{ item }}.tar.gz"
+      #   args:
+      #     chdir: /opt/installer
+      #   with_items:
+      #     - httpd-2.4.48
+      #     - apr-1.7.0
+      #     - apr-util-1.6.1
+
+      # - name: Copy apr files to httpd
+      #   shell: "cp -r {{ item }} httpd-2.4.48/srclib/{{ item }}"
+      #   args:
+      #     chdir: /opt/installer
+      #   with_items:
+      #     - apr-1.7.0
+      #     - apr-util-1.6.1
+
+      # - name: Select the default Python
+      #   shell: "sudo alternatives --config python"
+
+      # - name: Compile httpd installer
+      #   command: |
+      #     ./buildconf
+      #     ./configure --with-included-apr --prefix=/opt/apache2.4.48_NEW/ --enable-ssl --enable-so
+      #     make
+      #     sudo make install
+      #   args:
+      #     chdir: /opt/installer/httpd-2.4.48_NEW

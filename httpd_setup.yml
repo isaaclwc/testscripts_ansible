@@ -26,10 +26,6 @@
           state: directory
         register: directory_result
 
-      - name: display directory_result
-        debug:
-          var: directory_result
-
       #######################################################################################################
 
       - name: Download installer httpd
@@ -39,10 +35,6 @@
           validate_certs: no
         register: httpd_download
 
-      - name: display httpd_download
-        debug:
-          var: httpd_download
-
       - name: Download installer apr
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
@@ -50,20 +42,12 @@
           validate_certs: no
         register: apr_download
 
-      - name: display apr_download
-        debug:
-          var: apr_download
-
       - name: Download installer apr-util
         get_url:
           url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
           dest: "{{ directory_result.path }}"
           validate_certs: no
         register: apr_util_download
-
-      - name: display apr_util_download
-        debug:
-          var: apr_util_download
 
       #######################################################################################################
 
@@ -74,17 +58,9 @@
           remote_src: yes
         register: httpd_extracted
 
-      - name: display httpd_extracted
-        debug:
-          var: httpd_extracted
-
       - name: omit .tar.gz httpd
         set_fact:
           httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
-
-      - name: Display directory without extension httpd
-        debug:
-          var: httpd_directory_name
 
       #######################################################################################################
       - name: Extract apr
@@ -94,25 +70,13 @@
           remote_src: yes
         register: apr_extracted
 
-      - name: display apr_extracted
-        debug:
-          var: apr_extracted  
-
       - name: omit .tar.gz apr
         set_fact:
           apr_directory_path: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
-
-      - name: Display directory without extension apr
-        debug:
-          var: apr_directory_path
       
       - name: Extract apr name
         set_fact:
           apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('^([^\\-]+).*$', '\\1') }}"
-
-      - name: Display apr name
-        debug:
-          var: apr_directory_name
 
       #######################################################################################################
       - name: Extract apr-util
@@ -122,25 +86,13 @@
           remote_src: yes
         register: apr_util_extracted
 
-      - name: display apr_util_extracted
-        debug:
-          var: apr_util_extracted  
-
       - name: omit .tar.gz apr
         set_fact:
           apr_util_directory_path: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
-      - name: Display omiited extension apr-util
-        debug:
-          var: apr_util_directory_path
-
       - name: extract apr-util name
         set_fact: 
           apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
-
-      - name:  apr-util
-        debug:
-          var: apr_util_directory_name
 
       #######################################################################################################
 
@@ -167,10 +119,6 @@
           chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
         register: installed_httpd
 
-      - name: display installed_httpd facts
-        debug:
-          var: installed_httpd
-
       ######################################################################################################
         
       # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
@@ -195,6 +143,11 @@
           owner: apache
           group: apache
           recurse: yes
+        register: change_directory
+
+      - name: display change_directory result
+        debug:
+          var: change_directory
 
       - name: Create httpd.service file with content
         copy:
@@ -205,20 +158,23 @@
 
             [Service]
             Type=forking
-            ExecStart=/opt/apache2.4.48//bin/apachectl -k start
-            ExecReload=/opt/apache2.4.48//bin/apachectl -k graceful
-            ExecStop=/opt/apache2.4.48//bin/apachectl -k graceful-stop
-            PIDFile=/opt/apache2.4.48//logs/httpd.pid
+            ExecStart={{ change_directory.path }}bin/apachectl -k start
+            ExecReload={{ change_directory.path }}bin/apachectl -k graceful
+            ExecStop={{ change_directory.path }}bin/apachectl -k graceful-stop
+            PIDFile={{ change_directory.path }}logs/httpd.pid
 
             PrivateTmp=true
 
             [Install]
             WantedBy=multi-user.target
-          dest: /etc/systemd/system/httpd.service
+          dest: /etc/systemd/system/{{ httpd_directory_name }}.service
         register: httpd_service
 
-      # - name: Enable and start httpd service
-      #   shell: "systemctl start {{ destination_result.dest }}"
+      - name: service daemon reload
+        shell: "systemctl daemon-reload"
+
+      - name: Enable and start httpd service
+        shell: "systemctl start {{ httpd_directory_name }}.service"
 
       # - name: Configure firewalld
       #   service:
