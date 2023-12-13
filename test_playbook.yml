@@ -74,3 +74,27 @@
           ##{{ apr-util-1.6.1 | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('-.*', '') }}
 
           ##apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
+
+      # - name: Get installer directory httpd
+      #   set_fact:
+      #     httpd_installer_path: /opt/installer/httpd-2.4.48.tar.gz
+
+      # - name: display installer directory httpd
+      #   debug:
+      #     var: httpd_installer_path
+
+      # - name: Get installer directory apr
+      #   set_fact:
+      #     apr_installer_path: /opt/installer/apr-1.7.0.tar.gz
+
+      # - name: display installer directory apr
+      #   debug:
+      #     var: apr_installer_path
+
+      # - name: Get installer directory apr-util
+      #   set_fact:
+      #     apr_util_installer_path: /opt/installer/apr-util-1.6.1.tar.gz
+
+      # - name: display installer directory util
+      #   debug:
+      #     var: apr_util_installer_path

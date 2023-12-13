@@ -15,8 +15,6 @@
           - pcre-devel
           - openssl-devel
           - libnghttp2
-          - libcurl-devel
-          - jansson-devel
           - make
           - python3
           - firewalld
