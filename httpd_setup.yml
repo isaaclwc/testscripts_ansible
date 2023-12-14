@@ -145,6 +145,11 @@
           recurse: yes
         register: change_directory
 
+      - name: Create ssl directory in conf directory
+        file:
+          path: "{{ change_directory.path }}conf/"
+          state: directory
+
       - name: display change_directory result
         debug:
           var: change_directory
