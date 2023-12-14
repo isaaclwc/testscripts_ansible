@@ -24,8 +24,16 @@
       - name: Stop httpd_old service
         shell: "systemctl stop {{ existing_httpd_service_name }}.service"
 
-      - name: disable previous httpd service
+      - name: disable current httpd service
         shell: "systemctl disable {{ existing_httpd_service_name }}.service"
+
+      - name: Status check on the current httpd service
+        shell: "systemctl status {{ existing_httpd_service_name }}.service"
+        register: httpd_status_check
+
+      - name: display the status result of the current httpd service
+        debug:
+          var: httpd_status_check
 
       #######################################################################################################
 
@@ -125,5 +133,13 @@
           dest: "{{ ssl_directory.path }}/"
           remote_src: yes
 
-      - name: start httpd service
+      - name: start upgraded httpd service
         shell: "systemctl start {{ httpd_directory_name }}.service"
+
+      - name: Status check on the upgraded httpd service
+        shell: "systemctl status {{ httpd_directory_name }}.service"
+        register: upgraded_httpd_status_check
+        
+      - name: display status check on the upgraded httpd service
+        debug:
+          var: upgraded_httpd_status_check
