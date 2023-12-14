@@ -5,10 +5,10 @@
     become: yes
 
     vars_prompt:
-      - name: httpd_service_name
+      - name: httpd service name
         prompt: "Please input existing httpd service name"
         private: no
-        register: existing_httpd_service_name
+        register: httpd_service_name
 
       - name: httpd version
         prompt: "Please input the new httpd version to be downloaded"
@@ -22,13 +22,13 @@
 
     tasks:
       - name: Stop httpd old service
-        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
+        shell: "systemctl stop {{ httpd_service_name }}.service"
 
       - name: Disable current httpd service
-        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
+        shell: "systemctl disable {{ httpd_service_name }}.service"
 
       - name: Status check on the current httpd service
-        shell: "systemctl status {{ existing_httpd_service_name }}.service"
+        shell: "systemctl status {{ httpd_service_name }}.service"
         register: httpd_status_check
 
       - name: Display the status result of the current httpd service
