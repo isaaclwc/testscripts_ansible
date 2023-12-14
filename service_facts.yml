@@ -4,9 +4,17 @@
     gather_facts: no
     become: yes
     tasks:
+      # - name: Gather facts about services
+      #   service_facts:
+
+      # - name: Display active services
+      #   debug:
+      #     var: ansible_facts.services
+
       - name: Gather facts about services
         service_facts:
 
-      - name: Display services
-        ansible.builtin.debug:
-          var: ansible_facts.services
+      - name: Display active services
+        debug:
+          msg: "{{ item }}"
+        loop: "{{ ansible_facts.services | selectattr('state', 'equalto', 'running') | map(attribute='name') | list }}"
