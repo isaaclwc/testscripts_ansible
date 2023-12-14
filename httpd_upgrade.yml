@@ -128,7 +128,7 @@
         file:
           path: "{{ change_directory.path }}conf/ssl"
           state: directory
-          remote_src: yes
+          # remote_src: yes
         register: ssl_directory
 
       - name: Copy existing ssl to the new httpd folder
