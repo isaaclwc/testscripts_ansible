@@ -5,20 +5,26 @@
     become: yes
 
     vars_prompt:
-      - name: httpd_service_name
+      - name: existing_httpd_service_name
         prompt: "Please input existing httpd service name"
         private: no
-        register: httpd_service_name
+
+      - name: upgrade_httpd_version
+        prompt: "Please input the new httpd version to be downloaded"
+        private: no
 
       - name: apache_name
         prompt: "Please input desired new apache folder name"
         private: no
-        register: apache_name
 
     tasks:
       - name: display httpd service name
         debug:
-          var: httpd_service_name
+          var: existing_httpd_service_name
+
+      - name: display httpd service name
+        debug:
+          var: upgrade_httpd_version
 
       - name: display apache name
         debug:

@@ -5,31 +5,33 @@
     become: yes
 
     vars_prompt:
-      - name: httpd service name
+      - name: existing_httpd_service_name
         prompt: "Please input existing httpd service name"
         private: no
-        register: httpd_service_name
 
-      - name: httpd version
+      - name: upgrade_httpd_version
         prompt: "Please input the new httpd version to be downloaded"
         private: no
-        register: httpd_upgrade_version_name
 
-      - name: apache_name
+      - name: existing_apache_name
+        prompt: "Please input the existing apache folder name"
+        private: no
+
+      - name: upgraded_apache_name
         prompt: "Please input desired new apache folder name"
         private: no
-        register: apache_name
 
     tasks:
       - name: Stop httpd old service
-        shell: "systemctl stop {{ httpd_service_name }}.service"
+        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
 
       - name: Disable current httpd service
-        shell: "systemctl disable {{ httpd_service_name }}.service"
+        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
 
       - name: Status check on the current httpd service
-        shell: "systemctl status {{ httpd_service_name }}.service"
+        shell: "systemctl status {{ existing_httpd_service_name }}.service"
         register: httpd_status_check
+        ignore_errors: yes
 
       - name: Display the status result of the current httpd service
         debug:
@@ -39,7 +41,7 @@
 
       - name: Download installer httpd
         get_url:
-          url: "https://archive.apache.org/dist/httpd/httpd-2.4.54.tar.gz"
+          url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
           dest: /opt/installer/
           validate_certs: no
         register: httpd_download
@@ -72,7 +74,7 @@
       - name: Compile httpd
         shell: |
           ./buildconf
-          ./configure --with-included-apr --prefix=/opt/{{ apache_name }}/ --enable-ssl --enable-so
+          ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
           make
           sudo make install
         args:
@@ -83,7 +85,7 @@
 
       - name: Change directory ownership
         file:
-          path: "/opt/{{ apache_name }}/"
+          path: "/opt/{{ upgraded_apache_name }}/"
           owner: apache
           group: apache
           recurse: yes
@@ -131,7 +133,7 @@
 
       - name: Copy existing ssl to the new httpd folder
         copy:
-          src: /opt/apache2.4.48/conf/ssl/
+          src: /opt/{{ existing_apache_name }}/conf/ssl/
           dest: "{{ ssl_directory.path }}/"
           remote_src: yes
 
