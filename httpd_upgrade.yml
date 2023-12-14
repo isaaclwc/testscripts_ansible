@@ -20,18 +20,20 @@
         private: no
         register: apache_name
 
+    #########################################################################################################
+
     tasks:
       - name: Stop httpd_old service
         shell: "systemctl stop {{ existing_httpd_service_name }}.service"
 
-      - name: disable current httpd service
+      - name: Disable current httpd service
         shell: "systemctl disable {{ existing_httpd_service_name }}.service"
 
       - name: Status check on the current httpd service
         shell: "systemctl status {{ existing_httpd_service_name }}.service"
         register: httpd_status_check
 
-      - name: display the status result of the current httpd service
+      - name: Display the status result of the current httpd service
         debug:
           var: httpd_status_check
 
@@ -111,6 +113,8 @@
           dest: /etc/systemd/system/{{ httpd_directory_name }}.service
         register: httpd_service
 
+      ######################################################################################################
+
       - name: Enable httpd service
         shell: "systemctl enable {{ httpd_directory_name }}.service"
 
@@ -127,19 +131,19 @@
           remote_src: yes
         register: ssl_directory
 
-      - name: Copy existing ssl and key to the new httpd folder
+      - name: Copy existing ssl to the new httpd folder
         copy:
           src: /opt/apache2.4.48/conf/ssl/
           dest: "{{ ssl_directory.path }}/"
           remote_src: yes
 
-      - name: start upgraded httpd service
+      - name: Start upgraded httpd service
         shell: "systemctl start {{ httpd_directory_name }}.service"
 
       - name: Status check on the upgraded httpd service
         shell: "systemctl status {{ httpd_directory_name }}.service"
         register: upgraded_httpd_status_check
         
-      - name: display status check on the upgraded httpd service
+      - name: Display status check on the upgraded httpd service
         debug:
           var: upgraded_httpd_status_check
