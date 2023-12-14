@@ -21,7 +21,7 @@
         register: apache_name
 
     tasks:
-      - name: Stop httpd_old service
+      - name: Stop httpd old service
         shell: "systemctl stop {{ existing_httpd_service_name }}.service"
 
       - name: Disable current httpd service
