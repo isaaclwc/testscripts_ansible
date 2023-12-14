@@ -29,11 +29,11 @@
 
       - name: Status check on the current httpd service
         shell: "systemctl status {{ existing_httpd_service_name }}.service"
-      #   register: httpd_status_check
+        register: httpd_status_check
 
-      # - name: Display the status result of the current httpd service
-      #   debug:
-      #     var: httpd_status_check
+      - name: Display the status result of the current httpd service
+        debug:
+          var: httpd_status_check
 
       #######################################################################################################
 
