@@ -147,3 +147,4 @@
       - name: Display status check on the upgraded httpd service
         debug:
           var: upgraded_httpd_status_check
+          
