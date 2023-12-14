@@ -89,7 +89,7 @@
           owner: apache
           group: apache
           recurse: yes
-          remote_src: yes
+          # remote_src: yes
         register: change_directory
 
       - name: Create httpd.service file with content
