@@ -97,11 +97,11 @@
       #######################################################################################################
 
       - name: Copy apr files to httpd
-        shell: "cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+        shell: "sudo cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
         register: copied_apr_files
 
       - name: Copy apr-util files to httpd
-        shell: "cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+        shell: "sudo cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
         register: copied_apr_util_files
 
       #######################################################################################################
@@ -171,10 +171,13 @@
         register: httpd_service
 
       - name: service daemon reload
-        shell: "systemctl daemon-reload"
+        shell: "sudo systemctl daemon-reload"
 
-      - name: Enable and start httpd service
-        shell: "systemctl start {{ httpd_directory_name }}.service"
+      - name: enable httpd service
+        shell: "sudo systemctl enable {{ httpd_directory_name }}.service"
+
+      - name: start httpd service
+        shell: "sudo systemctl start {{ httpd_directory_name }}.service"
 
       # - name: Configure firewalld
       #   service:
