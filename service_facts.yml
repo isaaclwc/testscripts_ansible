@@ -9,29 +9,37 @@
           paths: /etc/systemd/system
           patterns: 'httpd*.service'
           file_type: file
-        register: httpd_services
+        register: existing_httpd_services
 
       - name: Extract service names to an array
         set_fact:
-          httpd_service_names:
-            "{{ httpd_services.files | map(attribute='path') | map('basename') | list }}"
+          existing_httpd_service_names:
+            "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
 
       - name: Get state of HTTPD-related services
         command: "sudo systemctl status {{ item }}"
-        loop: "{{ httpd_service_names }}"
-        register: httpd_service_status
+        loop: "{{ existing_httpd_service_names }}"
+        register: existing_httpd_service_status
         changed_when: false
         failed_when: false
         ignore_errors: true
 
       - name: Display registered httpd status
         debug:
-          var: httpd_service_status
+          var: existing_httpd_service_status
 
-      - name: Create an array for active HTTPD services
+      - name: Create an array for existing active HTTPD services
         set_fact:
-          active_httpd_services: "{{ httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
+          existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
 
       - name: Display active HTTPD services
         debug:
-          var: active_httpd_services
+          var: existing_httpd_service_name
+
+      - name: List to loop tasks
+        set_facts:
+          looping_list: "{{ json_query('active_httpd_services[]')}}"
+
+      - name: display list
+        debug:
+          var: looping_list
