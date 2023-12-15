@@ -7,57 +7,17 @@
 
       ###############################################################################################################
 
-      # - name: Find HTTPD-related service files
-      #   find:
-      #     paths: /etc/systemd/system
-      #     patterns: 'httpd*.service'
-      #     file_type: file
-      #   register: existing_httpd_services
-
-      # - name: Extract service names to an array
-      #   set_fact:
-      #     existing_httpd_service_names:
-      #       "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
-
-      # - name: Get state of HTTPD-related services
-      #   command: "sudo systemctl status {{ item }}"
-      #   loop: "{{ existing_httpd_service_names }}"
-      #   register: existing_httpd_service_status
-      #   changed_when: false
-      #   failed_when: false
-      #   ignore_errors: true
-
-      # - name: Display registered httpd status
-      #   debug:
-      #     var: existing_httpd_service_status
-
-      # - name: Create an array for existing active HTTPD services
-      #   set_fact:
-      #     existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
-
-      # - name: Display active HTTPD services
-      #   debug:
-      #     var: existing_httpd_service_name
-
-      ##############################################################################################################
-
-      # - name: List to loop tasks
-      #   set_fact:
-      #     looping_list: "{{ json_query('active_httpd_services[]')}}"
-
-      # - name: display list
-      #   debug:
-      #     var: looping_list
-
       - name: Find HTTPD-related service files
         find:
           paths: /etc/systemd/system
           patterns: 'httpd*.service'
+          file_type: file
         register: existing_httpd_services
 
-      - name: Extract service names to a list
+      - name: Extract service names to an array
         set_fact:
-          existing_httpd_service_names: "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
+          existing_httpd_service_names:
+            "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
 
       - name: Get state of HTTPD-related services
         command: "sudo systemctl status {{ item }}"
@@ -73,11 +33,51 @@
 
       - name: Create an array for existing active HTTPD services
         set_fact:
-          existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item.stdout_lines[0]') | list }}"
+          existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
 
       - name: Display active HTTPD services
         debug:
           var: existing_httpd_service_name
+
+      ##############################################################################################################
+
+      # - name: List to loop tasks
+      #   set_fact:
+      #     looping_list: "{{ json_query('active_httpd_services[]')}}"
+
+      # - name: display list
+      #   debug:
+      #     var: looping_list
+
+      # - name: Find HTTPD-related service files
+      #   find:
+      #     paths: /etc/systemd/system
+      #     patterns: 'httpd*.service'
+      #   register: existing_httpd_services
+
+      # - name: Extract service names to a list
+      #   set_fact:
+      #     existing_httpd_service_names: "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
+
+      # - name: Get state of HTTPD-related services
+      #   command: "sudo systemctl status {{ item }}"
+      #   loop: "{{ existing_httpd_service_names }}"
+      #   register: existing_httpd_service_status
+      #   changed_when: false
+      #   failed_when: false
+      #   ignore_errors: true
+
+      # - name: Display registered httpd status
+      #   debug:
+      #     var: existing_httpd_service_status
+
+      # - name: Create an array for existing active HTTPD services
+      #   set_fact:
+      #     existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item.stdout_lines[0]') | list }}"
+
+      # - name: Display active HTTPD services
+      #   debug:
+      #     var: existing_httpd_service_name
 
       - name: Create a list of servers and service names
         set_fact:
