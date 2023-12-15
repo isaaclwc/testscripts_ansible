@@ -24,6 +24,10 @@
         failed_when: false
         ignore_errors: true
 
+      - name: Display registered httpd status
+        debug:
+          var: httpd_service_status
+
       - name: Create an array for active HTTPD services
         set_fact:
           active_httpd_services: "{{ httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
