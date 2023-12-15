@@ -37,7 +37,7 @@
           var: existing_httpd_service_name
 
       - name: List to loop tasks
-        set_facts:
+        set_fact:
           looping_list: "{{ json_query('active_httpd_services[]')}}"
 
       - name: display list
