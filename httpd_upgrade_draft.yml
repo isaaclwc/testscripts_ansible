@@ -5,9 +5,9 @@
     become: yes
 
     vars_prompt:
-      - name: existing_httpd_service_name
-        prompt: "Please input existing httpd service name"
-        private: no
+      # - name: existing_httpd_service_name
+      #   prompt: "Please input existing httpd service name"
+      #   private: no
 
       - name: upgrade_httpd_version
         prompt: "Please input the new httpd version to be downloaded"

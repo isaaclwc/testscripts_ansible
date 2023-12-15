@@ -161,3 +161,37 @@
       #     sudo make install
       #   args:
       #     chdir: /opt/installer/httpd-2.4.48_NEW
+
+      # - name: Gather facts about services
+      #   service_facts:
+
+      # - name: Display active services
+      #   debug:
+      #     var: ansible_facts.services
+
+      # - name: Gather facts about services
+      #   service_facts:
+
+      # - name: Display active services
+      #   debug:
+      #     msg: "{{ item }}"
+      #   loop: "{{ ansible_facts.services | selectattr('state', 'equalto', 'running') | map(attribute='name') | list }}"
+
+      # - name: Find HTTPD-related service files
+      #   find:
+      #     paths: /etc/systemd/system
+      #     patterns: 'httpd*.service'
+      #     file_type: file
+      #   register: httpd_services
+
+      # - name: Create an array with HTTPD service names
+      #   set_fact:
+      #     httpd_services_array: "{{ httpd_services.files | map(attribute='path') | map('basename') | list }}"
+
+      # - name: Display the HTTPD services array
+      #   debug:
+      #     var: httpd_services_array
+
+      # - name: Display httpd service status array
+      #   debug:
+      #     var: httpd_service_status

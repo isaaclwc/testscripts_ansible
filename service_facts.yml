@@ -1,39 +1,9 @@
 ---
-  - name: test service facts
+  - name: gather httpd service facts
     hosts: httpd_servers
     gather_facts: no
     become: yes
     tasks:
-      # - name: Gather facts about services
-      #   service_facts:
-
-      # - name: Display active services
-      #   debug:
-      #     var: ansible_facts.services
-
-      # - name: Gather facts about services
-      #   service_facts:
-
-      # - name: Display active services
-      #   debug:
-      #     msg: "{{ item }}"
-      #   loop: "{{ ansible_facts.services | selectattr('state', 'equalto', 'running') | map(attribute='name') | list }}"
-
-      # - name: Find HTTPD-related service files
-      #   find:
-      #     paths: /etc/systemd/system
-      #     patterns: 'httpd*.service'
-      #     file_type: file
-      #   register: httpd_services
-
-      # - name: Create an array with HTTPD service names
-      #   set_fact:
-      #     httpd_services_array: "{{ httpd_services.files | map(attribute='path') | map('basename') | list }}"
-
-      # - name: Display the HTTPD services array
-      #   debug:
-      #     var: httpd_services_array
-
       - name: Find HTTPD-related service files
         find:
           paths: /etc/systemd/system
@@ -53,10 +23,6 @@
         changed_when: false
         failed_when: false
         ignore_errors: true
-
-      # - name: Display httpd service status array
-      #   debug:
-      #     var: httpd_service_status
 
       - name: Create an array for active HTTPD services
         set_fact:
