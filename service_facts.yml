@@ -54,14 +54,14 @@
         failed_when: false
         ignore_errors: true
 
-      - name: Display httpd service status array
-        debug:
-          var: httpd_service_status
-
-      # - name: Create an array for active HTTPD services
-      #   set_fact:
-      #     active_httpd_services: "{{ httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
-
-      # - name: Display active HTTPD services
+      # - name: Display httpd service status array
       #   debug:
-      #     var: active_httpd_services
+      #     var: httpd_service_status
+
+      - name: Create an array for active HTTPD services
+        set_fact:
+          active_httpd_services: "{{ httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
+
+      - name: Display active HTTPD services
+        debug:
+          var: active_httpd_services
