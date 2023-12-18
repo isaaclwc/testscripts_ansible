@@ -71,10 +71,10 @@
       #   debug:
       #     var: existing_httpd_service_name
 
-      # - name: Create a list of servers and service names
-      #   set_fact:
-      #     server_service_mapping: "{{ server_service_mapping | default([]) + [{ 'server': ansible_host, 'services': existing_httpd_service_name }] }}"
+      - name: Create a list of servers and service names
+        set_fact:
+          server_service_mapping: "{{ server_service_mapping | default([]) + [{ 'server': ansible_host, 'services': existing_httpd_service_name }] }}"
 
-      # - name: display server
-      #   debug:
-      #     var: server_service_mapping
+      - name: display server
+        debug:
+          var: server_service_mapping
