@@ -27,17 +27,9 @@
         failed_when: false
         ignore_errors: true
 
-      - name: Display registered httpd status
-        debug:
-          var: existing_httpd_service_status
-
       - name: Create an array for existing active HTTPD services
         set_fact:
           existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
-
-      - name: Display active HTTPD services
-        debug:
-          var: existing_httpd_service_name
 
       ##############################################################################################################
 
@@ -79,10 +71,10 @@
       #   debug:
       #     var: existing_httpd_service_name
 
-      - name: Create a list of servers and service names
-        set_fact:
-          server_service_mapping: "{{ server_service_mapping | default([]) + [{ 'server': ansible_host, 'services': existing_httpd_service_name }] }}"
+      # - name: Create a list of servers and service names
+      #   set_fact:
+      #     server_service_mapping: "{{ server_service_mapping | default([]) + [{ 'server': ansible_host, 'services': existing_httpd_service_name }] }}"
 
-      - name: display server
-        debug:
-          var: server_service_mapping
+      # - name: display server
+      #   debug:
+      #     var: server_service_mapping

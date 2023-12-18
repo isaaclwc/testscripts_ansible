@@ -45,17 +45,9 @@
         failed_when: false
         ignore_errors: true
 
-      - name: Display registered httpd status
-        debug:
-          var: existing_httpd_service_status
-
       - name: Create an array for existing active HTTPD services
         set_fact:
           existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
-
-      - name: Display active HTTPD services
-        debug:
-          var: existing_httpd_service_name
 
       #######################################################################################################
 
