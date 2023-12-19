@@ -1,0 +1,63 @@
+---
+  - name: stop and disable existing httpd services
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+
+      ###############################################################################################################
+
+      - name: Find HTTPD-related service files
+        find:
+          paths: /etc/systemd/system
+          patterns: 'httpd*.service'
+          file_type: file
+        register: existing_httpd_services
+
+      - name: Extract service names to an array
+        set_fact:
+          existing_httpd_service_names:
+            "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
+
+      - name: Get state of HTTPD-related services
+        command: "sudo systemctl status {{ item }}"
+        loop: "{{ existing_httpd_service_names }}"
+        register: existing_httpd_service_status
+        changed_when: false
+        failed_when: false
+        ignore_errors: true
+
+      - name: Create an array for existing active HTTPD services
+        set_fact:
+          existing_httpd_service_name: "{{ existing_httpd_service_status.results | selectattr('rc', 'eq', 0) | map(attribute='item') | list }}"
+
+      # - name: Create a list of servers and service names
+      #   set_fact:
+      #     server_service_mapping: "{{ server_service_mapping | default([]) + [{ 'server': ansible_host, 'services': existing_httpd_service_name }] }}"
+
+      # - name: display server
+      #   debug:
+      #     var: server_service_mapping
+
+      ##############################################################################################################
+
+      - name: Stop httpd old service
+        shell: "systemctl stop {{ item }}.service"
+        with_items:
+          - "{{ existing_httpd_service_name }}"
+
+      # - name: Disable current httpd service
+      #   shell: "systemctl disable {{ item }}.service"
+      #   with_items:
+      #     - "{{ existing_httpd_service_name }}"
+
+      - name: Status check on the current httpd service
+        shell: "systemctl status {{ item }}.service"
+        with_items:
+          - "{{ existing_httpd_service_name }}"
+        register: httpd_status_check
+        ignore_errors: yes
+
+      - name: Display the status result of the current httpd service
+        debug:
+          var: httpd_status_check
