@@ -14,14 +14,14 @@
           file_type: file
         register: existing_httpd_services
 
+      - name: Extract service names to an array
+        set_fact:
+          existing_httpd_service_names:
+            "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
+
       - name: display registered httpd services
         debug:
-          var: existing_httpd_services
-
-      # - name: Extract service names to an array
-      #   set_fact:
-      #     existing_httpd_service_names:
-      #       "{{ existing_httpd_services.files | map(attribute='path') | map('basename') | list }}"
+          var: existing_httpd_service_names
 
       # - name: Get state of HTTPD-related services
       #   command: "sudo systemctl status {{ item }}"
