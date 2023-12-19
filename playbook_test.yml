@@ -4,10 +4,10 @@
     gather_facts: no
     become: yes
 
-    vars_prompt:
-      - name: upgrade_httpd_version
-        prompt: "Please input the new httpd version to be downloaded"
-        private: no
+    # vars_prompt:
+    #   - name: upgrade_httpd_version
+    #     prompt: "Please input the new httpd version to be downloaded"
+    #     private: no
 
     tasks:
 
