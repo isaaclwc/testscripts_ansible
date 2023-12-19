@@ -42,7 +42,7 @@
       ##############################################################################################################
 
       - name: Stop httpd old service
-        shell: "systemctl stop {{ item }}.service"
+        shell: "systemctl stop {{ item }}"
         with_items:
           - "{{ existing_httpd_service_name }}"
 
@@ -52,7 +52,7 @@
       #     - "{{ existing_httpd_service_name }}"
 
       - name: Status check on the current httpd service
-        shell: "systemctl status {{ item }}.service"
+        shell: "systemctl status {{ item }}"
         with_items:
           - "{{ existing_httpd_service_name }}"
         register: httpd_status_check
