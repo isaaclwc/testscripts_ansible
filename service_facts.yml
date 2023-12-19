@@ -51,7 +51,7 @@
       - name: Extract service names to an array
         set_fact:
           existing_apache_names:
-            "{{ eexisting_apache.files | map(attribute='path') | map('basename') | list }}"
+            "{{ existing_apache.files | map(attribute='path') | map('basename') | list }}"
 
       - name: display registered httpd services
         debug:
