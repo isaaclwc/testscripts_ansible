@@ -184,17 +184,17 @@
       - name: start httpd service
         shell: "sudo systemctl start {{ httpd_directory_name }}.service"
 
-      # - name: Configure firewalld
-      #   service:
-      #     name: firewalld
-      #     state: started
-      #     enabled: yes
+      - name: Configure firewalld
+        service:
+          name: firewalld
+          state: started
+          enabled: yes
 
-      # - name: Add listening ports
-      #   firewalld:
-      #     zone: public
-      #     port: "{{ item }}/tcp"
-      #     permanent: yes
-      #     state: enabled
-      #   with_items:
-      #     - 443
+      - name: Add listening ports
+        firewalld:
+          zone: public
+          port: "{{ item }}/tcp"
+          permanent: yes
+          state: enabled
+        with_items:
+          - 443
