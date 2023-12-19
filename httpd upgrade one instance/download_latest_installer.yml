@@ -1,0 +1,11 @@
+  - name: download latest installer
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Download installer httpd
+        get_url:
+          url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
+          dest: /opt/installer/
+          validate_certs: no
+        register: httpd_download

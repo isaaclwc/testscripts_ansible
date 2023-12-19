@@ -1,0 +1,105 @@
+---
+  - name: Upgrade HTTPD Service
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Extract httpd
+        unarchive: 
+          src: "{{ httpd_download.dest }}"
+          dest: /opt/installer/
+          remote_src: yes
+        register: httpd_extracted
+
+      - name: omit .tar.gz httpd
+        set_fact:
+          httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      #######################################################################################################
+
+      - name: Copy apr files to httpd
+        shell: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
+        register: copied_apr_files
+
+      - name: Copy apr-util files to httpd
+        shell: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
+        register: copied_apr_util_files
+
+      #######################################################################################################
+
+      - name: Compile httpd
+        shell: |
+          ./buildconf
+          ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
+          make
+          sudo make install
+        args:
+          chdir: "/opt/installer/{{ httpd_directory_name }}"
+        register: installed_httpd
+
+      ######################################################################################################
+
+      - name: Change directory ownership
+        file:
+          path: "/opt/{{ upgraded_apache_name }}/"
+          owner: apache
+          group: apache
+          recurse: yes
+          # remote_src: yes
+        register: change_directory
+
+      - name: Create httpd.service file with content
+        copy:
+          content: |
+            [Unit]
+            Description=The Apache HTTP
+            After=network.target
+
+            [Service]
+            Type=forking
+            ExecStart={{ change_directory.path }}bin/apachectl -k start
+            ExecReload={{ change_directory.path }}bin/apachectl -k graceful
+            ExecStop={{ change_directory.path }}bin/apachectl -k graceful-stop
+            PIDFile={{ change_directory.path }}logs/httpd.pid
+
+            PrivateTmp=true
+
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/{{ httpd_directory_name }}.service
+        register: httpd_service
+
+      ######################################################################################################
+
+      - name: Enable httpd service
+        shell: "systemctl enable {{ httpd_directory_name }}.service"
+
+      - name: Make a backup of the new conf file
+        copy:
+          src: "{{ change_directory.path }}conf/httpd.conf"
+          dest: "{{ change_directory.path }}conf/httpd.conf.BAK" 
+          remote_src: yes
+
+      - name: Create ssl folder
+        file:
+          path: "{{ change_directory.path }}conf/ssl"
+          state: directory
+          # remote_src: yes
+        register: ssl_directory
+
+      - name: Copy existing ssl to the new httpd folder
+        copy:
+          src: /opt/{{ existing_apache_name }}/conf/ssl/
+          dest: "{{ ssl_directory.path }}/"
+          remote_src: yes
+
+      - name: Start upgraded httpd service
+        shell: "systemctl start {{ httpd_directory_name }}.service"
+
+      - name: Status check on the upgraded httpd service
+        shell: "systemctl status {{ httpd_directory_name }}.service"
+        register: upgraded_httpd_status_check
+        
+      - name: Display status check on the upgraded httpd service
+        debug:
+          var: upgraded_httpd_status_check

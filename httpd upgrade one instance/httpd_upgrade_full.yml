@@ -1,5 +1,5 @@
 ---
-  - name: Httpd upgrade task ## upgrade catering to one apache instance per server
+  - name: Httpd upgrade task
     hosts: httpd_servers
     gather_facts: no
     become: yes

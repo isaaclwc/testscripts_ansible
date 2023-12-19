@@ -1,0 +1,20 @@
+---
+  - name: stop and disable existing httpd services
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Stop httpd old service
+        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
+
+      - name: Disable current httpd service
+        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
+
+      - name: Status check on the current httpd service
+        shell: "systemctl status {{ existing_httpd_service_name }}.service"
+        register: httpd_status_check
+        ignore_errors: yes
+
+      - name: Display the status result of the current httpd service
+        debug:
+          var: httpd_status_check
