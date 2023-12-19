@@ -1,6 +1,6 @@
 ---
   - name: gather httpd service facts
-    hosts: 192.168.0.124
+    hosts: httpd_servers
     gather_facts: no
     become: yes
     tasks:
