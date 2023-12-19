@@ -7,12 +7,16 @@
 
       ###############################################################################################################
 
-      # - name: Find HTTPD-related service files
-      #   find:
-      #     paths: /etc/systemd/system
-      #     patterns: 'httpd*.service'
-      #     file_type: file
-      #   register: existing_httpd_services
+      - name: Find HTTPD-related service files
+        find:
+          paths: /etc/systemd/system
+          patterns: 'httpd*.service'
+          file_type: file
+        register: existing_httpd_services
+
+      - name: display registered httpd services
+        debug:
+          var: existing_httpd_services
 
       # - name: Extract service names to an array
       #   set_fact:
@@ -41,16 +45,16 @@
 
       ##############################################################################################################
 
-      - name: Find apache-related folders
-        find:
-          paths: /opt/
-          patterns: '*apache*'
-          file_type: directory
-        register: existing_apache
+      # - name: Find apache-related folders
+      #   find:
+      #     paths: /opt/
+      #     patterns: '*apache*'
+      #     file_type: directory
+      #   register: existing_apache
 
-      - name: display registered apache folders
-        debug:
-          var: existing_apache
+      # - name: display registered apache folders
+      #   debug:
+      #     var: existing_apache
 
       # - name: Extract service names to an array
       #   set_fact:
