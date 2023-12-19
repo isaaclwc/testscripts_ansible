@@ -44,7 +44,7 @@
       - name: Find apache-related folders
         find:
           paths: /opt/
-          patterns: 'apache*'
+          patterns: '*apache*'
           file_type: directory
         register: existing_apache
 
