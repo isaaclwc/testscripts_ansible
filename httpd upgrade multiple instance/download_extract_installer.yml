@@ -1,0 +1,45 @@
+---
+  - name: download latest version installer
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+
+    vars_prompt:
+      - name: upgrade_httpd_version
+        prompt: "Please input the new httpd version to be downloaded"
+        private: no
+
+    tasks:
+      #######################################################################################################
+
+      - name: Download installer httpd
+        get_url:
+          url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
+          dest: /opt/installer/
+          validate_certs: no
+        register: httpd_download
+
+      #######################################################################################################
+
+      - name: Extract httpd
+        unarchive: 
+          src: "{{ httpd_download.dest }}"
+          dest: /opt/installer/
+          remote_src: yes
+        register: httpd_extracted
+
+      - name: omit .tar.gz httpd
+        set_fact:
+          httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      #######################################################################################################
+
+      - name: Copy apr files to httpd
+        shell: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
+        register: copied_apr_files
+
+      - name: Copy apr-util files to httpd
+        shell: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
+        register: copied_apr_util_files
+
+      #######################################################################################################

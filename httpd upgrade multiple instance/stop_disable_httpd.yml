@@ -46,10 +46,10 @@
         with_items:
           - "{{ existing_httpd_service_name }}"
 
-      # - name: Disable current httpd service
-      #   shell: "systemctl disable {{ item }}.service"
-      #   with_items:
-      #     - "{{ existing_httpd_service_name }}"
+      - name: Disable current httpd service
+        shell: "systemctl disable {{ item }}.service"
+        with_items:
+          - "{{ existing_httpd_service_name }}"
 
       - name: Status check on the current httpd service
         shell: "systemctl status {{ item }}"
@@ -57,7 +57,3 @@
           - "{{ existing_httpd_service_name }}"
         register: httpd_status_check
         ignore_errors: yes
-
-      - name: Display the status result of the current httpd service
-        debug:
-          var: httpd_status_check

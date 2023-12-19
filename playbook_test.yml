@@ -1,0 +1,21 @@
+---
+  - name: check folder exist
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+
+    vars_prompt:
+      - name: upgrade_httpd_version
+        prompt: "Please input the new httpd version to be downloaded"
+        private: no
+
+    tasks:
+
+      - name: check if httpd folder exist
+        stat:
+          path: "/opt/{{ upgrade_httpd_version }}"
+        register: folder_exists
+
+      - name: display registered folder results
+        debug:
+          var: folder_exists
