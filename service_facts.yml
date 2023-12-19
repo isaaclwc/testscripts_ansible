@@ -45,7 +45,7 @@
         find:
           paths: /opt/
           patterns: 'apache*'
-          file_type: file
+          file_type: directory
         register: existing_apache
 
       - name: display registered apache folders
