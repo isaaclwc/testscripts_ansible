@@ -1,6 +1,6 @@
 ---
   - name: gather httpd service facts
-    hosts: httpd_servers
+    hosts: multi_instance
     gather_facts: no
     become: yes
     tasks:
