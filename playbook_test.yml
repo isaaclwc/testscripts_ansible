@@ -13,7 +13,7 @@
 
       - name: check if httpd folder exist
         stat:
-          path: "/opt/{{ upgrade_httpd_version }}"
+          path: "/opt/installer/{{ upgrade_httpd_version }}"
         register: folder_exists
 
       - name: display registered folder results
