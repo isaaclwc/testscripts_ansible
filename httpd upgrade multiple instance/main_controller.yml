@@ -1,0 +1,9 @@
+---
+  - name: Httpd Upgrade Main Controller
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Stop and Disable Existing Httpd services
+        include_playbook: stop_disable_httpd.yml
+        register: 

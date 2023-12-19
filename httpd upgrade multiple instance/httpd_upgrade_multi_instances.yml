@@ -1,50 +1,23 @@
 ---
-  - name: Httpd upgrade task ## upgrade catering to one apache instance per server
+  - name: httpd upgrade
     hosts: httpd_servers
     gather_facts: no
     become: yes
 
-    vars_prompt:
-      - name: existing_httpd_service_name
-        prompt: "Please input existing httpd service name"
-        private: no
-
-      - name: upgrade_httpd_version
-        prompt: "Please input the new httpd version to be downloaded"
-        private: no
-
-      - name: existing_apache_name
-        prompt: "Please input the existing apache folder name"
-        private: no
-
-      - name: upgraded_apache_name
-        prompt: "Please input desired new apache folder name"
-        private: no
-
     tasks:
-      - name: Stop httpd old service
-        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
-
-      - name: Disable current httpd service
-        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
-
-      - name: Status check on the current httpd service
-        shell: "systemctl status {{ existing_httpd_service_name }}.service"
-        register: httpd_status_check
-        ignore_errors: yes
-
-      - name: Display the status result of the current httpd service
-        debug:
-          var: httpd_status_check
 
       #######################################################################################################
 
-      - name: Download installer httpd
-        get_url:
-          url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
-          dest: /opt/installer/
-          validate_certs: no
-        register: httpd_download
+      - name: check if httpd folder exist
+        stat:
+          path: "/opt/installer/{{ upgrade_httpd_version }}"
+        register: folder_exists
+
+      - name: delete httpd folder if exist
+        file:
+          path: "/opt/installer/{{ upgrade_httpd_version }}"
+          state: absent
+        when: folder_exists.exists
 
       #######################################################################################################
 
@@ -53,6 +26,7 @@
           src: "{{ httpd_download.dest }}"
           dest: /opt/installer/
           remote_src: yes
+        when: not folder_exists.exists
         register: httpd_extracted
 
       - name: omit .tar.gz httpd
