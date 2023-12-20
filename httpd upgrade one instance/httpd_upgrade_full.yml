@@ -84,6 +84,7 @@
           ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
           make
           sudo make install
+        become: yes
         args:
           chdir: "/opt/installer/{{ httpd_directory_name }}"
         register: installed_httpd
