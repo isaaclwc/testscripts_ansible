@@ -79,7 +79,7 @@
       #######################################################################################################
 
       - name: Compile httpd
-        command: |
+        shell: |
           ./buildconf
           ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
           make
