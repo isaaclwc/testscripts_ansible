@@ -1,0 +1,200 @@
+---
+  - name: Install prerequisites and set up Apache HTTPD on CentOS 7
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Install prerequisites
+        yum:
+          name: "{{ item }}"
+          state: present
+        with_items:
+          - autoconf
+          - expat-devel
+          - libtool
+          - pcre-devel
+          - openssl-devel
+          - libnghttp2
+          - make
+          - python3
+          - firewalld
+
+      #######################################################################################################
+      - name: create installer directory
+        file:
+          path: /opt/installer
+          state: directory
+        register: directory_result
+
+      #######################################################################################################
+
+      - name: Download installer httpd
+        get_url:
+          url: "https://archive.apache.org/dist/httpd/httpd-2.4.48.tar.gz"
+          dest: "{{ directory_result.path }}"
+          validate_certs: no
+        register: httpd_download
+
+      - name: Download installer apr
+        get_url:
+          url: "https://archive.apache.org/dist/apr/apr-1.7.0.tar.gz"
+          dest: "{{ directory_result.path }}"
+          validate_certs: no
+        register: apr_download
+
+      - name: Download installer apr-util
+        get_url:
+          url: "https://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz"
+          dest: "{{ directory_result.path }}"
+          validate_certs: no
+        register: apr_util_download
+
+      #######################################################################################################
+
+      - name: Extract httpd
+        unarchive: 
+          src: "{{ httpd_download.dest }}"
+          dest: "{{ directory_result.path }}"
+          remote_src: yes
+        register: httpd_extracted
+
+      - name: omit .tar.gz httpd
+        set_fact:
+          httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      #######################################################################################################
+      - name: Extract apr
+        unarchive: 
+          src: "{{ apr_download.dest }}"
+          dest: "{{ directory_result.path }}"
+          remote_src: yes
+        register: apr_extracted
+
+      - name: omit .tar.gz apr
+        set_fact:
+          apr_directory_path: "{{ apr_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+      
+      - name: Extract apr name
+        set_fact:
+          apr_directory_name: "{{ apr_extracted.src | basename | regex_replace('^([^\\-]+).*$', '\\1') }}"
+
+      #######################################################################################################
+      - name: Extract apr-util
+        unarchive: 
+          src: "{{ apr_util_download.dest }}"
+          dest: "{{ directory_result.path }}"
+          remote_src: yes
+        register: apr_util_extracted
+
+      - name: omit .tar.gz apr
+        set_fact:
+          apr_util_directory_path: "{{ apr_util_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: extract apr-util name
+        set_fact: 
+          apr_util_directory_name: "{{ apr_util_extracted.src | basename | regex_replace('\\\\.tar\\\\.gz$', '') | regex_replace('(.+?-[^-]+)-.*$', '\\1') }}"
+
+      #######################################################################################################
+
+      - name: Copy apr files to httpd
+        shell: "sudo cp -r {{ directory_result.path }}/{{ apr_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_directory_name }}"
+        register: copied_apr_files
+
+      - name: Copy apr-util files to httpd
+        shell: "sudo cp -r {{ directory_result.path }}/{{ apr_util_directory_path }} {{ directory_result.path }}/{{ httpd_directory_name }}/srclib/{{ apr_util_directory_name }}"
+        register: copied_apr_util_files
+
+      #######################################################################################################
+
+      # - name: Select the default Python
+      #   command: "alternatives --config python"
+
+      - name: Compile httpd
+        shell: |
+          ./buildconf
+          ./configure --with-included-apr --prefix=/opt/apache2.4.48/ --enable-ssl --enable-so
+          make
+          sudo make install
+        args:
+          chdir: "{{ directory_result.path }}/{{ httpd_directory_name }}"
+        register: installed_httpd
+
+      ######################################################################################################
+        
+      # - name: Configure httpd.conf and SSL (Add tasks for your configuration)
+      #   # Add tasks to configure httpd.conf and SSL
+      #   # Use ansible.builtin.template or ansible.builtin.copy to manage configuration files
+
+      - name: Create user and group with no login and no home
+        group:
+          name: apache
+          state: present
+
+      - name: Create Apache user
+        user:
+          name: apache
+          group: apache
+          shell: /sbin/nologin
+          system: yes
+
+      - name: Change directory ownership
+        file:
+          path: /opt/apache2.4.48/
+          owner: apache
+          group: apache
+          recurse: yes
+        register: change_directory
+
+      - name: Create ssl directory in conf directory
+        file:
+          path: "{{ change_directory.path }}conf/"
+          state: directory
+
+      - name: display change_directory result
+        debug:
+          var: change_directory
+
+      - name: Create httpd.service file with content
+        copy:
+          content: |
+            [Unit]
+            Description=The Apache HTTP
+            After=network.target
+
+            [Service]
+            Type=forking
+            ExecStart={{ change_directory.path }}bin/apachectl -k start
+            ExecReload={{ change_directory.path }}bin/apachectl -k graceful
+            ExecStop={{ change_directory.path }}bin/apachectl -k graceful-stop
+            PIDFile={{ change_directory.path }}logs/httpd.pid
+
+            PrivateTmp=true
+
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/{{ httpd_directory_name }}.service
+        register: httpd_service
+
+      - name: service daemon reload
+        shell: "sudo systemctl daemon-reload"
+
+      - name: enable httpd service
+        shell: "sudo systemctl enable {{ httpd_directory_name }}.service"
+
+      - name: start httpd service
+        shell: "sudo systemctl start {{ httpd_directory_name }}.service"
+
+      - name: Configure firewalld
+        service:
+          name: firewalld
+          state: started
+          enabled: yes
+
+      - name: Add listening ports
+        firewalld:
+          zone: public
+          port: "{{ item }}/tcp"
+          permanent: yes
+          state: enabled
+        with_items:
+          - 443
