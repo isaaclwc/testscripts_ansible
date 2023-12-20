@@ -156,6 +156,7 @@
         command: "systemctl status {{ httpd_service_name }}.service"
         become: yes
         register: upgraded_httpd_status_check
+        ignore_errors: yes
         
       - name: Display status check on the upgraded httpd service
         debug:
