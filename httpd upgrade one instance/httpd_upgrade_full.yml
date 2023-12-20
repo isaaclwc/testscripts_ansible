@@ -118,13 +118,13 @@
 
             [Install]
             WantedBy=multi-user.target
-          dest: /etc/systemd/system/{{ httpd_directory_name }}.service
+          dest: /etc/systemd/system/{{ httpd_service_name }}.service
         register: httpd_service
 
       ######################################################################################################
 
       - name: Enable httpd service
-        command: "systemctl enable {{ httpd_directory_name }}.service"
+        command: "systemctl enable {{ httpd_service_name }}.service"
         become: yes
 
       - name: Make a backup of the new conf file
@@ -147,13 +147,13 @@
           remote_src: yes
 
       - name: Start upgraded httpd service
-        command: "systemctl start {{ httpd_directory_name }}.service"
+        command: "systemctl start {{ httpd_service_name }}.service"
         become: yes
         async: 100
         poll: 5
 
       - name: Status check on the upgraded httpd service
-        command: "systemctl status {{ httpd_directory_name }}.service"
+        command: "systemctl status {{ httpd_service_name }}.service"
         become: yes
         register: upgraded_httpd_status_check
         
