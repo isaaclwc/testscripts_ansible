@@ -4,32 +4,37 @@
     gather_facts: no
     become: yes
 
-    vars_prompt:
-      - name: existing_httpd_service_name
-        prompt: "Please input existing httpd service name"
-        private: no
+    # vars_prompt:
+    #   - name: existing_httpd_service_name
+    #     prompt: "Please input existing httpd service name"
+    #     private: no
 
-      - name: upgrade_httpd_version
-        prompt: "Please input the new httpd version to be downloaded"
-        private: no
+    #   - name: upgrade_httpd_version
+    #     prompt: "Please input the new httpd version to be downloaded"
+    #     private: no
 
-      - name: existing_apache_name
-        prompt: "Please input the existing apache folder name"
-        private: no
+    #   - name: existing_apache_name
+    #     prompt: "Please input the existing apache folder name"
+    #     private: no
 
-      - name: upgraded_apache_name
-        prompt: "Please input desired new apache folder name"
-        private: no
+    #   - name: upgraded_apache_name
+    #     prompt: "Please input desired new apache folder name"
+    #     private: no
 
     tasks:
       - name: Stop httpd old service
-        shell: "systemctl stop {{ existing_httpd_service_name }}.service"
+        command: "systemctl stop {{ existing_httpd_service_name }}.service"
+        become: yes
+        async: 100
+        poll: 5
 
       - name: Disable current httpd service
-        shell: "systemctl disable {{ existing_httpd_service_name }}.service"
+        command: "systemctl disable {{ existing_httpd_service_name }}.service"
+        become: yes
 
       - name: Status check on the current httpd service
-        shell: "systemctl status {{ existing_httpd_service_name }}.service"
+        command: "systemctl status {{ existing_httpd_service_name }}.service"
+        become: yes
         register: httpd_status_check
         ignore_errors: yes
 
@@ -62,21 +67,24 @@
       #######################################################################################################
 
       - name: Copy apr files to httpd
-        shell: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
+        command: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
+        become: yes
         register: copied_apr_files
 
       - name: Copy apr-util files to httpd
-        shell: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
+        command: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
+        become: yes
         register: copied_apr_util_files
 
       #######################################################################################################
 
       - name: Compile httpd
-        shell: |
+        command: |
           ./buildconf
           ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
           make
           sudo make install
+        become: yes
         args:
           chdir: "/opt/installer/{{ httpd_directory_name }}"
         register: installed_httpd
@@ -116,7 +124,8 @@
       ######################################################################################################
 
       - name: Enable httpd service
-        shell: "systemctl enable {{ httpd_directory_name }}.service"
+        command: "systemctl enable {{ httpd_directory_name }}.service"
+        become: yes
 
       - name: Make a backup of the new conf file
         copy:
@@ -138,12 +147,23 @@
           remote_src: yes
 
       - name: Start upgraded httpd service
-        shell: "systemctl start {{ httpd_directory_name }}.service"
+        command: "systemctl start {{ httpd_directory_name }}.service"
+        become: yes
+        async: 100
+        poll: 5
 
       - name: Status check on the upgraded httpd service
-        shell: "systemctl status {{ httpd_directory_name }}.service"
+        command: "systemctl status {{ httpd_directory_name }}.service"
+        become: yes
         register: upgraded_httpd_status_check
         
       - name: Display status check on the upgraded httpd service
         debug:
           var: upgraded_httpd_status_check
+
+      ######################################################################################################
+
+      - name: Delete Compiled Httpd Folder
+        file:
+          path: "/opt/installer/{{ httpd_directory_name }}"
+          state: absent
