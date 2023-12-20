@@ -195,3 +195,20 @@
       # - name: Display httpd service status array
       #   debug:
       #     var: httpd_service_status
+
+    # vars_prompt:
+    #   - name: existing_httpd_service_name
+    #     prompt: "Please input existing httpd service name"
+    #     private: no
+
+    #   - name: upgrade_httpd_version
+    #     prompt: "Please input the new httpd version to be downloaded"
+    #     private: no
+
+    #   - name: existing_apache_name
+    #     prompt: "Please input the existing apache folder name"
+    #     private: no
+
+    #   - name: upgraded_apache_name
+    #     prompt: "Please input desired new apache folder name"
+    #     private: no
