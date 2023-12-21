@@ -123,18 +123,6 @@
           dest: "{{ change_directory.path }}conf/"
           remote_src: yes
 
-      - name: Modify contents of httpd.conf (Document Root)
-        lineinfile:
-          path: "{{ change_directory.path }}conf/httpd.conf"
-          regexp: '^DocumentRoot\s+"/opt/{{ existing_apache_name }}/htdocs"$'
-          line: 'DocumentRoot "/opt/{{ upgraded_apache_name }}/htdocs"'
-
-      - name: Modify contents of httpd.conf (Document Root)
-        lineinfile:
-          path: "{{ change_directory.path }}conf/httpd.conf"
-          regexp: '^Directory\s+"/opt/{{ existing_apache_name }}/htdocs"$'
-          line: 'Directory "/opt/{{ upgraded_apache_name }}/htdocs"'
-
       - name: Create ssl folder
         file:
           path: "{{ change_directory.path }}conf/ssl"
@@ -147,6 +135,18 @@
           src: /opt/{{ existing_apache_name }}/conf/ssl/
           dest: "{{ ssl_directory.path }}/"
           remote_src: yes
+
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: "{{ change_directory.path }}conf/httpd.conf"
+          regexp: '^DocumentRoot\s+"/opt/{{ existing_apache_name }}/htdocs"$'
+          line: 'DocumentRoot "/opt/{{ upgraded_apache_name }}/htdocs"'
+
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: "{{ change_directory.path }}conf/httpd.conf"
+          regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}/htdocs"$'
+          line: '<Directory "/opt/{{ upgraded_apache_name }}/htdocs"'
 
       - name: Start upgraded httpd service
         command: "systemctl start {{ httpd_service_name }}.service"
