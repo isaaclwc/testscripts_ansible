@@ -8,9 +8,9 @@
       - name: store variable in a file
         copy:
           content: |
-            existing_httpd_service_name: "{{  }}"
-            upgrade_httpd_version: "{{  }}"
-            existing_apache_name: "{{  }}"
-            upgraded_apache_name: "{{  }}"
-            httpd_service_name: "{{  }}"
+            existing_httpd_service_name: "{{ existing_httpd_service_name }}"
+            upgrade_httpd_version: "{{ upgrade_httpd_version }}"
+            existing_apache_name: "{{ existing_apache_name }}"
+            upgraded_apache_name: "{{ upgraded_apache_name }}"
+            httpd_service_name: "{{ httpd_service_name }}"
           dest: test.json
