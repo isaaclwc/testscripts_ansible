@@ -1,5 +1,5 @@
 ---
-  - name: modufy httpd.conf contents
+  - name: modify httpd.conf contents
     hosts: httpd_servers
     gather_facts: no
     become: yes
@@ -8,5 +8,5 @@
     - name: Update line in httpd.conf (DocumentRoot)
       replace:
         path: /opt/apache2.4.54_instance1/conf/httpd.conf  # Path to your httpd.conf file
-        regexp: '^(.*DocumentRoot\s+)\/opt\/apache.*$'  # Regular expression to find the existing DocumentRoot
+        regexp: '^DocumentRoot\s+"/opt/apache2.4.48_instance1//htdocs"$'  # Regular expression to find the existing DocumentRoot
         replace: DocumentRoot /opt/apache2.4.54_instance1/htdocs  # Replace with your desired document root path
