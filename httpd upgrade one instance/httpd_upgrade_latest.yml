@@ -8,8 +8,8 @@
       - name: Stop httpd old service
         command: "systemctl stop {{ existing_httpd_service_name }}.service"
         become: yes
-        # async: 100
-        # poll: 5
+        async: 100
+        poll: 5
         register: stop_httpd
 
       - name: Disable current httpd service
@@ -117,6 +117,24 @@
           dest: "{{ change_directory.path }}conf/httpd.conf.BAK" 
           remote_src: yes
 
+      - name: Copy existing httpd.conf to new apache conf directory
+        copy: 
+          src: "/opt/{{ existing_apache_name }}/conf/httpd.conf"
+          dest: "{{ change_directory.path }}conf/"
+        remote_src: yes
+
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: "{{ change_directory.path }}conf/httpd.conf"
+          regexp: '^DocumentRoot\s+"/opt/{{ existing_apache_name }}/htdocs"$'
+          line: 'DocumentRoot "/opt/{{ upgraded_apache_name }}/htdocs"'
+
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: "{{ change_directory.path }}conf/httpd.conf"
+          regexp: '^Directory\s+"/opt/{{ existing_apache_name }}/htdocs"$'
+          line: 'Directory "/opt/{{ upgraded_apache_name }}/htdocs"'
+
       - name: Create ssl folder
         file:
           path: "{{ change_directory.path }}conf/ssl"
@@ -133,8 +151,8 @@
       - name: Start upgraded httpd service
         command: "systemctl start {{ httpd_service_name }}.service"
         become: yes
-        # async: 100
-        # poll: 5
+        async: 100
+        poll: 5
         register: start_httpd
 
       - name: Status check on the upgraded httpd service

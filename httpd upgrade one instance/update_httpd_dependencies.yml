@@ -1,0 +1,26 @@
+---
+  - name: Update Httpd Dependencies
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+
+    vars_prompt:
+      - name: expat_devel_version
+        prompt: "Expat-devel version to be installed"
+        private: no
+
+      - name: openssl_devel_version
+        prompt: "Openssl-devel version to be installed"
+        private: no
+
+
+    tasks:
+      - name: Install specific version of expat-devel
+        yum:
+          name: "{{ expat_devel_version }}"
+          state: present
+
+      - name: Install specific version of openssl-devel
+        yum:
+          name: "{{ openssl_devel_version }}"
+          state: present
