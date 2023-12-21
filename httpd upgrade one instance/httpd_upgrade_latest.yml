@@ -28,17 +28,11 @@
 
       #######################################################################################################
 
-      - name: Check if HTTPD compressed file exists
-        stat:
-          path: "/opt/installer/{{ upgrade_httpd_version }}.tar.gz"
-        register: httpd_installer_stat
-
       - name: Download installer httpd
         get_url:
           url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
           dest: /opt/installer/
           validate_certs: no
-        when: not httpd_installer_stat.stat.exists
         register: httpd_download
 
       #######################################################################################################
