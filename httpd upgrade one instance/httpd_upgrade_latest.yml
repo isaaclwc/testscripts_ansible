@@ -10,6 +10,7 @@
         become: yes
         async: 100
         poll: 5
+        register: stop_httpd
 
       - name: Disable current httpd service
         command: "systemctl disable {{ existing_httpd_service_name }}.service"
@@ -134,12 +135,12 @@
         become: yes
         async: 100
         poll: 5
+        register: start_httpd
 
       - name: Status check on the upgraded httpd service
         command: "systemctl status {{ httpd_service_name }}.service"
         become: yes
         register: upgraded_httpd_status_check
-        ignore_errors: yes
         
       - name: Display status check on the upgraded httpd service
         debug:
