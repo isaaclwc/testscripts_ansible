@@ -6,7 +6,7 @@
 
     tasks:
     - name: Update line in httpd.conf (DocumentRoot)
-      lineinfile:
+      replace:
         path: /opt/apache2.4.54_instance1/conf/httpd.conf  # Path to your httpd.conf file
         regexp: '^(.*DocumentRoot\s+)\/opt\/apache.*$'  # Regular expression to find the existing DocumentRoot
-        line: DocumentRoot /opt/apache2.4.54_instance1/htdocs  # Replace with your desired document root path
+        replace: DocumentRoot /opt/apache2.4.54_instance1/htdocs  # Replace with your desired document root path
