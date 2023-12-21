@@ -115,13 +115,13 @@
         copy:
           src: "{{ change_directory.path }}conf/httpd.conf"
           dest: "{{ change_directory.path }}conf/httpd.conf.BAK" 
-        remote_src: yes
+          remote_src: yes
 
       - name: Copy existing httpd.conf to new apache conf directory
         copy: 
           src: "/opt/{{ existing_apache_name }}/conf/httpd.conf"
           dest: "{{ change_directory.path }}conf/"
-        remote_src: yes
+          remote_src: yes
 
       - name: Modify contents of httpd.conf (Document Root)
         lineinfile:
