@@ -1,21 +1,18 @@
 ---
-  - name: check folder exist
+  - name: modufy httpd.conf contents
     hosts: httpd_servers
     gather_facts: no
     become: yes
 
-    # vars_prompt:
-    #   - name: upgrade_httpd_version
-    #     prompt: "Please input the new httpd version to be downloaded"
-    #     private: no
-
     tasks:
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: /opt/apache2.4.54_instance2/conf/httpd.conf
+          regexp: '^DocumentRoot\s+"/opt/apache2.4.48_instance2/htdocs"$'
+          line: 'DocumentRoot "/opt/apache2.4.54_instance2/htdocs"'
 
-      - name: check if httpd folder exist
-        stat:
-          path: "/opt/installer/{{ upgrade_httpd_version }}"
-        register: folder_exists
-
-      - name: display registered folder results
-        debug:
-          var: folder_exists
+      - name: Modify contents of httpd.conf (Document Root)
+        lineinfile:
+          path: /opt/apache2.4.54_instance2/conf/httpd.conf
+          regexp: '^<Directory\s+"/opt/apache2.4.48_instance2/htdocs"$'
+          line: '<Directory "/opt/apache2.4.54_instance2/htdocs"'
