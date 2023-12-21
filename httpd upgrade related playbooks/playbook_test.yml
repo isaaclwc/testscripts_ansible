@@ -7,12 +7,6 @@
     tasks:
       - name: Modify contents of httpd.conf (Document Root)
         lineinfile:
-          path: /opt/apache2.4.54_instance2/conf/httpd.conf
-          regexp: '^DocumentRoot\s+"/opt/apache2.4.48_instance2/htdocs"$'
-          line: 'DocumentRoot "/opt/apache2.4.54_instance2/htdocs"'
-
-      - name: Modify contents of httpd.conf (Document Root)
-        lineinfile:
-          path: /opt/apache2.4.54_instance2/conf/httpd.conf
-          regexp: '^<Directory\s+"/opt/apache2.4.48_instance2/htdocs"$'
-          line: '<Directory "/opt/apache2.4.54_instance2/htdocs"'
+          path: /opt/apache2.4.54_instance1/conf/httpd.conf
+          regexp: '^.*apache2\.4\.48_instance1.*$'
+          line: 'apache2.4.54_instance1'
