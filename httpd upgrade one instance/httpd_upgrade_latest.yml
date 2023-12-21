@@ -8,8 +8,8 @@
       - name: Stop httpd old service
         command: "systemctl stop {{ existing_httpd_service_name }}.service"
         become: yes
-        async: 100
-        poll: 5
+        # async: 100
+        # poll: 5
         register: stop_httpd
 
       - name: Disable current httpd service
@@ -133,8 +133,8 @@
       - name: Start upgraded httpd service
         command: "systemctl start {{ httpd_service_name }}.service"
         become: yes
-        async: 100
-        poll: 5
+        # async: 100
+        # poll: 5
         register: start_httpd
 
       - name: Status check on the upgraded httpd service

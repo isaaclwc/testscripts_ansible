@@ -1,0 +1,24 @@
+---
+  - name: Rollback Upgrade Task
+    hosts: httpd_servers
+    gather_facts: no
+    become: yes
+
+    tasks:
+      - name: Stop Upgraded Httpd service
+        command: "systemctl stop httpd"
+        become: yes
+        async: 100
+        poll: 5
+        register: stop_upgraded_httpd
+
+      - name: Start Previous Httpd service
+        command: "systemctl start httpd"
+        become: yes
+        async: 100
+        poll: 5
+        register: start_previous_httpd
+
+      - name: Enable previous httpd service
+        command: "systemctl enable httpd"
+        become: yes
