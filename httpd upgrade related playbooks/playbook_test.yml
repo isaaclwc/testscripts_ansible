@@ -5,8 +5,14 @@
     become: yes
 
     tasks:
-      - name: Modify contents of httpd.conf (Document Root)
-        lineinfile:
-          path: /opt/apache2.4.54_instance1/conf/httpd.conf
-          regexp: '^.*apache2\.4\.48_instance1.*$'
-          line: 'apache2.4.54_instance1'
+    - name: Update DocumentRoot in httpd.conf
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf  # Path to your httpd.conf file
+        regexp: '^DocumentRoot\s+"/opt/apache2.4.48_instance1/"$'  # Regular expression to find the existing DocumentRoot
+        line: 'DocumentRoot "/opt/apache2.4.54_instance1/"'  # Replace with your desired document root path
+
+    - name: Update Directory root path in httpd.conf
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf  # Path to your httpd.conf file
+        regexp: '^<Directory "/opt/apache2.4.48_instance1/">$'  # Regular expression to find the existing Directory root
+        line: '<Directory "/opt/apache2.4.54_instance1/">'  # Replace with your desired directory root path
