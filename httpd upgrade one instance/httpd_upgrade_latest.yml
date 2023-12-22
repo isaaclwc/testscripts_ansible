@@ -160,6 +160,10 @@
           regexp: '^ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
           replace: 'ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
 
+      - name: Debug regex substitution
+        debug:
+          msg: "Regex: '^ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
+
       - name: Update line in httpd.conf (cgi-bin)
         replace:
           path: "{{ change_directory.path }}conf/httpd.conf"
