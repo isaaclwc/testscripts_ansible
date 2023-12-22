@@ -5,8 +5,12 @@
     become: yes
 
     tasks:
-    - name: Update line in httpd.conf (DocumentRoot)
-      replace:
-        path: /opt/apache2.4.54_instance1/conf/httpd.conf  # Path to your httpd.conf file
-        regexp: '.*\/opt\/apache.*'  # Regular expression to find the existing DocumentRoot
-        replace: /opt/apache2.4.54_instance1  # Replace with your desired document root path
+      - name: Update line in httpd.conf (ScriptAlias)
+        replace:
+          path: "/opt/apache2.4.54_instance1/conf/httpd.conf"
+          regexp: '^ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
+          replace: 'ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
+
+      - name: Debug regex substitution
+        debug:
+          msg: "Regex: '^ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
