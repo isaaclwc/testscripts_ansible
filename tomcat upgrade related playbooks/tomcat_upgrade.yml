@@ -38,10 +38,6 @@
           validate_certs: no
         register: tomcat_download
 
-      - name: Display tomcat_download
-        debug:
-          var: tomcat_download
-
       - name: Extract tomcat
         unarchive:
           src: "{{ tomcat_download.dest }}"
@@ -49,17 +45,9 @@
           remote_src: yes
         register: tomcat_extracted
 
-      - name: Display tomcat_extracted
-        debug:
-          var: tomcat_extracted
-
       - name: Formating tomcat tomcat name
         set_fact:
           tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
-
-      - name: Display tomcat directory name
-        debug:
-          var: tomcat_directory_name
 
       - name: Move extracted tomcat directory to /opt directory
         move: 
@@ -89,15 +77,15 @@
 
             Environment=JAVA_HOME=/opt/openjdk11.0.11.9
 
-            Environment=CATALINA_PID=/opt/update_tomcat_directory/temp/tomcat.pid
-            Environment=CATALINA_HOME=/opt/update_tomcat_directory
+            Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid
+            Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}
             Environment='CATALINA_OPTS=-Xms128M -Xmx256M -Djava.net.preferIPv4Stack=true -Dapplication.module=job -Dapplication.environment.properties=/opt/config/PNDS/TSconf'
             Environment='JAVA_OPTS=-Djava.awt.headless=true'
             Environment='JAVA_OPTS=-Djava.library.path=/opt/cloudhsm/lib'
             Environment=SPRING_APPLICATION_JSON='{"TOKENGATEWAY": {"COREPATH": "file:/opt/config/","LOG4JAPI": "file:/opt/config/log4j2-api.xml"}}'
 
-            ExecStart=/bin/bash /opt/update_tomcat_directory/bin/startup.sh
-            ExecStop=/bin/bash /opt/update_tomcat_directory/bin/shutdown.sh
+            ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh
+            ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh
             SuccessExitStatus=143
 
             User=tomcat
