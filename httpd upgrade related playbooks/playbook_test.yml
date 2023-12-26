@@ -1,21 +1,36 @@
 ---
   - name: modify httpd.conf contents
-    hosts: httpd_servers
+    hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
 
     tasks:
-      - name: Update line in httpd.conf (ScriptAlias)
-        replace:
-          path: "/opt/apache2.4.54_instance1/conf/httpd.conf"
-          regexp: '^    ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
-          replace: '    ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
-        register: replace_scriptalias
+      - name: Download new apache tomcat version
+        get_url: 
+          url: https://archive.apache.org/dist/tomcat/tomcat-9/{{tomcat_installer}}.tar.gz
+          dest: /opt/source/
+          validate_certs: no
+        register: tomcat_download
 
-      - name: display update line
+      - name: Display tomcat_download
         debug:
-          var: replace_scriptalias
+          var: tomcat_download
 
-      - name: Debug regex substitution
+      - name: Extract tomcat
+        unarchive:
+          src: "{{ tomcat_download.dest }}"
+          dest: /opt/source/
+          remote_src: yes
+        register: tomcat_extracted
+
+      - name: Display tomcat_extracted
         debug:
-          msg: "Regex: '^    ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
+          var: tomcat_extracted
+
+      - name: Formating tomcat tomcat name
+        set_fact:
+          tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: Display tomcat directory name
+        debug:
+          var: tomcat_directory_name
