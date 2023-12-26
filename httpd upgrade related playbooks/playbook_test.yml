@@ -8,8 +8,8 @@
       - name: Update line in httpd.conf (ScriptAlias)
         replace:
           path: "/opt/apache2.4.54_instance1/conf/httpd.conf"
-          regexp: '^ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
-          replace: 'ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
+          regexp: '^    ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
+          replace: '    ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
         register: replace_scriptalias
 
       - name: display update line
@@ -18,4 +18,4 @@
 
       - name: Debug regex substitution
         debug:
-          msg: "Regex: '^ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
+          msg: "Regex: '^    ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
