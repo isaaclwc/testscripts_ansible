@@ -5,7 +5,7 @@
     become: yes
 
     ## specific_host
-    ## tomcat_installer (v9.0.84/bin/apache-tomcat-9.0.84)
+    ## tomcat_version 9.0.84
     ## existing_tomcat_service
     ## existing_tomcat_directory
     ## update_tomcat_service
@@ -17,6 +17,7 @@
         become: yes
         async: 100
         poll: 5
+        register: stop_tomcat
 
       - name: Disable existing tomcat service
         command: "systemctl disable {{ existing_tomcat_service }}.service"
@@ -32,7 +33,7 @@
 
       - name: Download new apache tomcat version
         get_url: 
-          url: https://archive.apache.org/dist/tomcat/tomcat-9/{{tomcat_installer}}.tar.gz
+          url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
           dest: /opt/source/
           validate_certs: no
         register: tomcat_download
@@ -60,7 +61,78 @@
         debug:
           var: tomcat_directory_name
 
-      # - name: Move extracted tomcat directory to /opt directory
-      #   move: 
-      #     src: 
-      #     dest: 
+      - name: Move extracted tomcat directory to /opt directory
+        move: 
+          src: "/opt/source/{{tomcat_directory_name}}"
+          dest: "/opt/{{update_tomcat_directory}}"
+
+      - name: Change new tomcat directory ownership 
+        file:
+          path: "/opt/{{update_tomcat_directory}}"
+          owner: tomcat
+          group: tomcat
+          mode: "0775"
+          recurse: yes
+          # remote_src: yes
+        register: change_ownership
+
+      - name: Create updated tomcat.service file with content
+        copy:
+          content: |
+            [Unit]
+            Description=Apache Tomcat Application Container
+            Wants=network.target
+            After=network.target
+
+            [Service]
+            Type=forking
+
+            Environment=JAVA_HOME=/opt/openjdk11.0.11.9
+
+            Environment=CATALINA_PID=/opt/update_tomcat_directory/temp/tomcat.pid
+            Environment=CATALINA_HOME=/opt/update_tomcat_directory
+            Environment='CATALINA_OPTS=-Xms128M -Xmx256M -Djava.net.preferIPv4Stack=true -Dapplication.module=job -Dapplication.environment.properties=/opt/config/PNDS/TSconf'
+            Environment='JAVA_OPTS=-Djava.awt.headless=true'
+            Environment='JAVA_OPTS=-Djava.library.path=/opt/cloudhsm/lib'
+            Environment=SPRING_APPLICATION_JSON='{"TOKENGATEWAY": {"COREPATH": "file:/opt/config/","LOG4JAPI": "file:/opt/config/log4j2-api.xml"}}'
+
+            ExecStart=/bin/bash /opt/update_tomcat_directory/bin/startup.sh
+            ExecStop=/bin/bash /opt/update_tomcat_directory/bin/shutdown.sh
+            SuccessExitStatus=143
+
+            User=tomcat
+            Group=tomcat
+            UMask=0007
+            Environment='UMASK=002'
+            RestartSec=10
+            Restart=always
+
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/{{ update_tomcat_service }}.service
+        register: tomcat_service
+
+      - name: Enable updated httpd service
+        command: "systemctl enable {{ update_tomcat_service }}.service"
+        become: yes
+
+      - name: Start updated tomcat service
+        command: "systemctl start {{ update_tomcat_service }}.service"
+        become: yes
+        async: 100
+        poll: 5
+        register: start_tomcat
+
+      - name: Status check on the updated tomcat service
+        command: "systemctl status {{ update_tomcat_service }}.service"
+        become: yes
+        register: upgraded_tomcat_status_check
+        
+      - name: Display status check on the updated tomcat service
+        debug:
+          var: upgraded_tomcat_status_check
+
+      - name: Delete downloaded httpd installer
+        file: 
+          path: "/opt/source/{{ tomcat_version }}.tar.gz"
+          state: absent

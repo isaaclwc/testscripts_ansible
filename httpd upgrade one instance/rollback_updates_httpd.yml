@@ -1,0 +1,33 @@
+---
+  - name: Rollback Upgrade Task
+    hosts: "{{ specific_host }}"
+    gather_facts: no
+    become: yes
+
+    ## specific_host
+    ## updated_httpd_service
+    ## existing_httpd_service
+  
+
+    tasks:
+      - name: Stop Updated Httpd service
+        command: "systemctl stop {{updated_httpd_service}}.service"
+        become: yes
+        async: 100
+        poll: 5
+        register: stop_updated_httpd
+
+      - name: Disable existing httpd service
+        command: "systemctl disable {{ updated_httpd_service }}.service"
+        become: yes
+
+      - name: Start Previous Httpd service
+        command: "systemctl start {{ existing_httpd_service }}.service"
+        become: yes
+        async: 100
+        poll: 5
+        register: start_previous_httpd
+
+      - name: Enable previous httpd service
+        command: "systemctl enable {{ existing_httpd_service }}.service"
+        become: yes

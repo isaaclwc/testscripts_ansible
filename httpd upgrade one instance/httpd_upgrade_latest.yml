@@ -166,6 +166,10 @@
           regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//cgi-bin">.*$'
           replace: '<Directory "/opt/{{ upgraded_apache_name }}//cgi-bin">'
 
+      - name: Enable updated httpd service
+        command: "systemctl enable {{ httpd_service_name }}.service"
+        become: yes
+
       - name: Start updated httpd service
         command: "systemctl start {{ httpd_service_name }}.service"
         become: yes
