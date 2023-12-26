@@ -1,34 +1,34 @@
 ---
   - name: Httpd upgrade task
-    hosts: httpd_servers
+    hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
 
     tasks:
-      - name: Stop httpd old service
+      - name: Stop existing httpd service
         command: "systemctl stop {{ existing_httpd_service_name }}.service"
         become: yes
         async: 100
         poll: 5
         register: stop_httpd
 
-      - name: Disable current httpd service
+      - name: Disable existing httpd service
         command: "systemctl disable {{ existing_httpd_service_name }}.service"
         become: yes
 
-      - name: Status check on the current httpd service
+      - name: Status check on the existing httpd service
         command: "systemctl status {{ existing_httpd_service_name }}.service"
         become: yes
         register: httpd_status_check
         ignore_errors: yes
 
-      - name: Display the status result of the current httpd service
+      - name: Display the status of the existing httpd service
         debug:
           var: httpd_status_check
 
       #######################################################################################################
 
-      - name: Download installer httpd
+      - name: Download httpd installer
         get_url:
           url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
           dest: /opt/installer/
@@ -37,32 +37,32 @@
 
       #######################################################################################################
 
-      - name: Extract httpd
+      - name: Extract httpd installer
         unarchive: 
           src: "{{ httpd_download.dest }}"
           dest: /opt/installer/
           remote_src: yes
         register: httpd_extracted
 
-      - name: omit .tar.gz httpd
+      - name: Formating httpd name
         set_fact:
           httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
       #######################################################################################################
 
-      - name: Copy apr files to httpd
+      - name: Copy apr files to httpd installer directory
         command: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
         become: yes
         register: copied_apr_files
 
-      - name: Copy apr-util files to httpd
+      - name: Copy apr-util files to httpd installer directo
         command: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
         become: yes
         register: copied_apr_util_files
 
       #######################################################################################################
 
-      - name: Compile httpd
+      - name: Compile httpd installer
         shell: |
           ./buildconf
           ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
@@ -75,7 +75,7 @@
 
       ######################################################################################################
 
-      - name: Change directory ownership
+      - name: Change new apache directory ownership 
         file:
           path: "/opt/{{ upgraded_apache_name }}/"
           owner: apache
@@ -84,7 +84,7 @@
           # remote_src: yes
         register: change_directory
 
-      - name: Create httpd.service file with content
+      - name: Create updated httpd.service file with content
         copy:
           content: |
             [Unit]
@@ -107,11 +107,11 @@
 
       ######################################################################################################
 
-      - name: Enable httpd service
+      - name: Enable updated httpd service
         command: "systemctl enable {{ httpd_service_name }}.service"
         become: yes
 
-      - name: Make a backup of the new conf file
+      - name: Make a backup copy of new httpd conf file
         copy:
           src: "{{ change_directory.path }}conf/httpd.conf"
           dest: "{{ change_directory.path }}conf/httpd.conf.BAK" 
@@ -123,14 +123,14 @@
           dest: "{{ change_directory.path }}conf/"
           remote_src: yes
 
-      - name: Create ssl folder
+      - name: Create ssl folder on updated apache directory
         file:
           path: "{{ change_directory.path }}conf/ssl"
           state: directory
           # remote_src: yes
         register: ssl_directory
 
-      - name: Copy existing ssl to the new httpd folder
+      - name: Copy existing ssl to the new apache folder
         copy:
           src: /opt/{{ existing_apache_name }}/conf/ssl/
           dest: "{{ ssl_directory.path }}/"
@@ -166,25 +166,30 @@
           regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//cgi-bin">.*$'
           replace: '<Directory "/opt/{{ upgraded_apache_name }}//cgi-bin">'
 
-      - name: Start upgraded httpd service
+      - name: Start updated httpd service
         command: "systemctl start {{ httpd_service_name }}.service"
         become: yes
         async: 100
         poll: 5
         register: start_httpd
 
-      - name: Status check on the upgraded httpd service
+      - name: Status check on the updated httpd service
         command: "systemctl status {{ httpd_service_name }}.service"
         become: yes
         register: upgraded_httpd_status_check
         
-      - name: Display status check on the upgraded httpd service
+      - name: Display status check on the updated httpd service
         debug:
           var: upgraded_httpd_status_check
 
       ######################################################################################################
 
-      - name: Delete Compiled Httpd Folder
+      - name: Delete compiled httpd installer directory
         file:
           path: "/opt/installer/{{ httpd_directory_name }}"
+          state: absent
+
+      - name: Delete downloaded httpd installer
+        file: 
+          path: "/opt/installer/{{ upgrade_httpd_version }}.tar.gz"
           state: absent
