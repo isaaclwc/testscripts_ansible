@@ -136,6 +136,12 @@
           dest: "{{ ssl_directory.path }}/"
           remote_src: yes
 
+      - name: Update line in httpd.conf (ServerRoot)
+        replace:
+          path: "{{ change_directory.path }}conf/httpd.conf"
+          regexp: '^(ServerRoot\s+"/opt/{{ existing_apache_name }}/".*)$'
+          replace: 'ServerRoot "/opt/{{ upgraded_apache_name }}/"'
+
       - name: Update line in httpd.conf (DocumentRoot)
         replace:
           path: "{{ change_directory.path }}conf/httpd.conf"
@@ -148,21 +154,11 @@
           regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//htdocs">.*$'
           replace: '<Directory "/opt/{{ upgraded_apache_name }}//htdocs">'
 
-      - name: Update line in httpd.conf (ServerRoot)
-        replace:
-          path: "{{ change_directory.path }}conf/httpd.conf"
-          regexp: '^(ServerRoot\s+"/opt/{{ existing_apache_name }}/".*)$'
-          replace: 'ServerRoot "/opt/{{ upgraded_apache_name }}/"'
-
       - name: Update line in httpd.conf (ScriptAlias)
         replace:
-          path: "{{ change_directory.path }}conf/httpd.conf"
-          regexp: '^ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
-          replace: 'ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
-
-      - name: Debug regex substitution
-        debug:
-          msg: "Regex: '^ScriptAlias\\s+/cgi-bin/\\s+\"/opt/{{ existing_apache_name }}//cgi-bin/\".*$'"
+          path: "/opt/apache2.4.54_instance1/conf/httpd.conf"
+          regexp: '^    ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
+          replace: '    ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
 
       - name: Update line in httpd.conf (cgi-bin)
         replace:
@@ -170,33 +166,21 @@
           regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//cgi-bin">.*$'
           replace: '<Directory "/opt/{{ upgraded_apache_name }}//cgi-bin">'
 
-      # - name: Modify contents of httpd.conf (Document Root)
-      #   lineinfile:
-      #     path: "{{ change_directory.path }}conf/httpd.conf"
-      #     regexp: '^DocumentRoot\s+"/opt/{{ existing_apache_name }}/htdocs"$'
-      #     line: 'DocumentRoot "/opt/{{ upgraded_apache_name }}/htdocs"'
+      - name: Start upgraded httpd service
+        command: "systemctl start {{ httpd_service_name }}.service"
+        become: yes
+        async: 100
+        poll: 5
+        register: start_httpd
 
-      # - name: Modify contents of httpd.conf (Document Root)
-      #   lineinfile:
-      #     path: "{{ change_directory.path }}conf/httpd.conf"
-      #     regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}/htdocs"$'
-      #     line: '<Directory "/opt/{{ upgraded_apache_name }}/htdocs"'
-
-      # - name: Start upgraded httpd service
-      #   command: "systemctl start {{ httpd_service_name }}.service"
-      #   become: yes
-      #   async: 100
-      #   poll: 5
-      #   register: start_httpd
-
-      # - name: Status check on the upgraded httpd service
-      #   command: "systemctl status {{ httpd_service_name }}.service"
-      #   become: yes
-      #   register: upgraded_httpd_status_check
+      - name: Status check on the upgraded httpd service
+        command: "systemctl status {{ httpd_service_name }}.service"
+        become: yes
+        register: upgraded_httpd_status_check
         
-      # - name: Display status check on the upgraded httpd service
-      #   debug:
-      #     var: upgraded_httpd_status_check
+      - name: Display status check on the upgraded httpd service
+        debug:
+          var: upgraded_httpd_status_check
 
       ######################################################################################################
 
