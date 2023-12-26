@@ -5,40 +5,40 @@
     become: yes
 
     ## specific_host
-    ## updated_httpd_service
-    ## existing_httpd_service
-    ## updated_apache_directory
+    ## httpd_service_name
+    ## existing_httpd_service_name
+    ## upgraded_apache_name
   
 
     tasks:
       - name: Stop Updated Httpd service
-        command: "systemctl stop {{updated_httpd_service}}.service"
+        command: "systemctl stop {{httpd_service_name}}.service"
         become: yes
         async: 100
         poll: 5
         register: stop_updated_httpd
 
-      - name: Disable existing httpd service
-        command: "systemctl disable {{ updated_httpd_service }}.service"
+      - name: Disable updated httpd service
+        command: "systemctl disable {{ httpd_service_name }}.service"
         become: yes
 
       - name: Delete updated httpd service
         file:
-          path: /etc/systemd/system/{{ updated_httpd_service }}.service
+          path: /etc/systemd/system/{{ httpd_service_name }}.service
           state: absent
 
       - name: Delete updated httpd folder
         file:
-          path: /opt/{{ updated_apache_directory }}
+          path: /opt/{{ upgraded_apache_name }}
           state: absent
 
       - name: Start Previous Httpd service
-        command: "systemctl start {{ existing_httpd_service }}.service"
+        command: "systemctl start {{ existing_httpd_service_name }}.service"
         become: yes
         async: 100
         poll: 5
         register: start_previous_httpd
 
       - name: Enable previous httpd service
-        command: "systemctl enable {{ existing_httpd_service }}.service"
+        command: "systemctl enable {{ existing_httpd_service_name }}.service"
         become: yes
