@@ -7,6 +7,7 @@
     ## specific_host
     ## updated_httpd_service
     ## existing_httpd_service
+    ## updated_apache_directory
   
 
     tasks:
@@ -20,6 +21,16 @@
       - name: Disable existing httpd service
         command: "systemctl disable {{ updated_httpd_service }}.service"
         become: yes
+
+      - name: Delete updated httpd service
+        file:
+          path: /etc/systemd/system/{{ updated_httpd_service }}.service
+          state: absent
+
+      - name: Delete updated httpd folder
+        file:
+          path: /opt/{{ updated_apache_directory }}
+          state: absent
 
       - name: Start Previous Httpd service
         command: "systemctl start {{ existing_httpd_service }}.service"
