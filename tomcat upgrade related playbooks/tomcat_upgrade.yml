@@ -63,6 +63,17 @@
           # remote_src: yes
         register: change_ownership
 
+      - name: Remove contents of conf folder
+        file:
+          path: "/opt/{{update_tomcat_directory}}/conf/"
+          state: absent
+
+      - name: Copy contents of existing conf directory to updated conf directory
+        copy:
+          src: "/opt/{{existing_tomcat_directory}}/conf/"
+          dest: "/opt/{{update_tomcat_directory}}/conf/"
+          remote_src: yes
+
       - name: Create updated tomcat.service file with content
         copy:
           content: |
