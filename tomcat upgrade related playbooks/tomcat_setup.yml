@@ -12,35 +12,17 @@
     ## update_tomcat_directory
 
     tasks:
-      - name: Stop existing tomcat service
-        command: "systemctl stop {{ existing_tomcat_service }}.service"
-        become: yes
-        async: 100
-        poll: 5
-        register: stop_tomcat
 
-      - name: Disable existing tomcat service
-        command: "systemctl disable {{ existing_tomcat_service }}.service"
-
-      - name: Existing tomcat status check
-        command: "systemctl status {{ existing_tomcat_service }}.service"
-        register: existing_tomcat_status
-        ignore_errors: yes
-
-      - name: Display existing tomcat status check
-        debug:
-          var: existing_tomcat_status
-
-      - name: Download new apache tomcat version
-        get_url: 
-          url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
-          dest: /opt/source/
-          validate_certs: no
-        register: tomcat_download
+      # - name: Download new apache tomcat version
+      #   get_url: 
+      #     url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+      #     dest: /opt/source/
+      #     validate_certs: no
+      #   register: tomcat_download
 
       - name: Extract tomcat
         unarchive:
-          src: "{{ tomcat_download.dest }}"
+          src: "/opt/source/apache-tomcat-{{tomcat_version}}.tar.gz"
           dest: /opt/source/
           remote_src: yes
         register: tomcat_extracted
@@ -50,8 +32,9 @@
           tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
 
       - name: Move extracted tomcat directory to /opt directory
-        command: "mv /opt/source/{{tomcat_directory_name}} /opt/{{update_tomcat_directory}}" 
-        become: yes
+        move: 
+          src: "/opt/source/{{tomcat_directory_name}}"
+          dest: "/opt/{{update_tomcat_directory}}"
 
       - name: Change new tomcat directory ownership 
         file:
