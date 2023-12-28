@@ -1,36 +1,22 @@
 ---
-  - name: modify httpd.conf contents
+  - name: test playbook scripts
     hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
 
     tasks:
-      - name: Download new apache tomcat version
-        get_url: 
-          url: https://archive.apache.org/dist/tomcat/tomcat-9/{{tomcat_installer}}.tar.gz
-          dest: /opt/source/
+      - name: Download httpd installer
+        get_url:
+          url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
+          dest: /opt/installer/
           validate_certs: no
-        register: tomcat_download
+        register: httpd_download
 
-      - name: Display tomcat_download
+      - name: Extract httpd installer
+        command: "sudo tar -zxvf {{ upgrade_httpd_version }}.tar.gz"
+        become: yes
+        register: httpd_extracted
+
+      - name: display extracted httpd
         debug:
-          var: tomcat_download
-
-      - name: Extract tomcat
-        unarchive:
-          src: "{{ tomcat_download.dest }}"
-          dest: /opt/source/
-          remote_src: yes
-        register: tomcat_extracted
-
-      - name: Display tomcat_extracted
-        debug:
-          var: tomcat_extracted
-
-      - name: Formating tomcat tomcat name
-        set_fact:
-          tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
-
-      - name: Display tomcat directory name
-        debug:
-          var: tomcat_directory_name
+          var: httpd_extracted
