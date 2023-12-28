@@ -13,7 +13,7 @@
         register: httpd_download
 
       - name: Extract httpd installer
-        command: "tar -zxvf {{ upgrade_httpd_version }}.tar.gz"
+        command: "tar -zxvf /opt/installer/{{ upgrade_httpd_version }}.tar.gz"
         become: yes
         register: httpd_extracted
 
