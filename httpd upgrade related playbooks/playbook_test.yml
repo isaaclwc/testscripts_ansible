@@ -20,3 +20,8 @@
       - name: display extracted httpd
         debug:
           var: httpd_extracted
+
+      - name: Delete downloaded httpd installer
+        file: 
+          path: "/opt/installer/{{ upgrade_httpd_version }}.tar.gz"
+          state: absent
