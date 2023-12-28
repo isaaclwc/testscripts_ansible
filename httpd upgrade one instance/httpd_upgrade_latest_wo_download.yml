@@ -55,7 +55,7 @@
         become: yes
         register: copied_apr_files
 
-      - name: Copy apr-util files to httpd installer directo
+      - name: Copy apr-util files to httpd installer directory
         command: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
         become: yes
         register: copied_apr_util_files
