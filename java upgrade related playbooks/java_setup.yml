@@ -14,7 +14,7 @@
 
       - name: Extract tomcat
         unarchive:
-          src: "/opt/source/apache-tomcat-{{tomcat_version}}.tar.gz"
+          src: "{{ java_download.dest }}"
           dest: /opt/source/
           remote_src: yes
-        register: tomcat_extracted
+        register: java_extracted 

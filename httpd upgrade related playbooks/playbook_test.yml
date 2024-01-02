@@ -12,6 +12,13 @@
           validate_certs: no
         register: java_download
 
-      - name: Display downloaded package results
+      - name: Extract tomcat
+        unarchive:
+          src: "{{ java_download.dest }}"
+          dest: /opt/source/
+          remote_src: yes
+        register: java_extracted 
+
+      - name: Display extracted java directory
         debug:
-          var: java_download
+          var: java_extracted
