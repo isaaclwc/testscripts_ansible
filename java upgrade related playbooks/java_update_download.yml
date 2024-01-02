@@ -1,19 +1,19 @@
 ---
-  - name: Java update task
+  - name: Java update task (local download)
     hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
 
     tasks:
-      # - name: Download new apache tomcat version
-      #   get_url: 
-      #     url: "{{ java_package_url }}"
-      #     dest: /opt/source/
-      #     validate_certs: no
-      #   register: java_download
+      - name: Download new apache tomcat version
+        get_url: 
+          url: "{{ java_package_url }}"
+          dest: /opt/source/
+          validate_certs: no
+        register: java_download
 
       - name: Extract java package
-        command: "tar -zxvf /opt/source/{{ java_package_name }}.tar.gz -C /opt/source/"
+        command: "tar -zxvf {{ java_download.dest }} -C /opt/source/"
         become: yes
         register: java_extracted
 
@@ -21,3 +21,9 @@
         move: 
           src: "/opt/source/{{java_extracted.stdout_lines[0]}}"
           dest: "/usr/java/{{java_extracted.stdout_lines[0]}}"
+
+      - name: Modify tomcat service java home path
+        replace:
+          path: "/etc/systemd/system/{{ tomcat_service_name }}.service"
+          regexp: "'^Environment=JAVA_HOME=/usr/java/{{ existing_java_name }}'"
+          replace: "'Environment=JAVA_HOME=/usr/java/{{ update_java_name }}'"
