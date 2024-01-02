@@ -17,13 +17,13 @@
         become: yes
         register: java_extracted
 
+      - name: Display extracted java directory
+        debug:
+          var: java_extracted.stdout_lines[-1]
+
       # - name: Extract tomcat
       #   unarchive:
       #     src: "{{ java_download.dest }}"
       #     dest: /opt/source/
       #     remote_src: yes
       #   register: java_extracted 
-
-      - name: Display extracted java directory
-        debug:
-          var: java_extracted
