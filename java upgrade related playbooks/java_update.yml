@@ -12,12 +12,10 @@
           validate_certs: no
         register: java_download
 
-      - name: Extract tomcat
-        unarchive:
-          src: "{{ java_download.dest }}"
-          dest: /opt/source/
-          remote_src: yes
-        register: java_extracted 
+      - name: Extract java package
+        command: "tar -zxvf {{ java_download.dest }} -C /opt/source/"
+        become: yes
+        register: java_extracted
 
       - name: Move extracted java directory to /usr/java directory
         move: 
