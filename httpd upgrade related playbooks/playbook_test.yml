@@ -7,17 +7,22 @@
     tasks:
       - name: Download new apache tomcat version
         get_url: 
-          url: "{{ java_package_url }}"
+          url: https://sources.buildroot.net/openjdk-bin/OpenJDK21U-jdk_x64_linux_hotspot_21.0.1_12.tar.gz
           dest: /opt/source/
           validate_certs: no
         register: java_download
 
-      - name: Extract tomcat
-        unarchive:
-          src: "{{ java_download.dest }}"
-          dest: /opt/source/
-          remote_src: yes
-        register: java_extracted 
+      - name: Extract java package
+        command: "tar -zxvf {{ java_download.dest }} /opt/source/"
+        become: yes
+        register: java_extracted
+
+      # - name: Extract tomcat
+      #   unarchive:
+      #     src: "{{ java_download.dest }}"
+      #     dest: /opt/source/
+      #     remote_src: yes
+      #   register: java_extracted 
 
       - name: Display extracted java directory
         debug:
