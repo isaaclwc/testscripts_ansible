@@ -13,7 +13,7 @@
         register: java_download
 
       - name: Extract java package
-        command: "tar -zxvf {{ java_download.dest }} /opt/source/"
+        command: "tar -zxvf {{ java_download.dest }} -C /opt/source/"
         become: yes
         register: java_extracted
 
