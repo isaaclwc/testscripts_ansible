@@ -11,3 +11,7 @@
           dest: /opt/source/
           validate_certs: no
         register: java_download
+
+      - name: Display downloaded package results
+        debug:
+          var: java_download
