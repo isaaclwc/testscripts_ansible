@@ -19,7 +19,7 @@
 
       - name: Display extracted java directory
         debug:
-          var: java_extracted.stdout_lines[+1]
+          var: java_extracted.stdout_lines[1]
 
       # - name: Extract tomcat
       #   unarchive:
