@@ -5,23 +5,9 @@
     become: yes
 
     tasks:
-      # - name: Download httpd installer
-      #   get_url:
-      #     url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
-      #     dest: /opt/installer/
-      #     validate_certs: no
-      #   register: httpd_download
-
-      - name: Extract httpd installer
-        command: "tar -zxvf /opt/installer/{{ upgrade_httpd_version }}.tar.gz"
-        become: yes
-        register: httpd_extracted
-
-      - name: display extracted httpd
-        debug:
-          var: httpd_extracted
-
-      - name: Delete downloaded httpd installer
-        file: 
-          path: "/opt/installer/{{ upgrade_httpd_version }}.tar.gz"
-          state: absent
+      - name: Download new apache tomcat version
+        get_url: 
+          url: "{{ java_package_url }}"
+          dest: /opt/source/
+          validate_certs: no
+        register: java_download
