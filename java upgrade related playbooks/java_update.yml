@@ -1,5 +1,5 @@
 ---
-  - name: Java setup task
+  - name: Java update task
     hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
