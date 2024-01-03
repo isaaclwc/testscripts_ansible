@@ -74,41 +74,47 @@
           dest: "/opt/{{update_tomcat_directory}}/conf/"
           remote_src: yes
 
-      - name: Create updated tomcat.service file with content
+      - name: Make a copy of the existing tomcat service for the updated tomcat service
         copy:
-          content: |
-            [Unit]
-            Description=Apache Tomcat Application Container
-            Wants=network.target
-            After=network.target
+          src: "/etc/systemd/system/{{ existing_tomcat_service }}.service"
+          dest: "/etc/systemd/system/{{ update_tomcat_service }}.service"
+          remote_src: yes
 
-            [Service]
-            Type=forking
+      # - name: Create updated tomcat.service file with content
+      #   copy:
+      #     content: |
+      #       [Unit]
+      #       Description=Apache Tomcat Application Container
+      #       Wants=network.target
+      #       After=network.target
 
-            Environment=JAVA_HOME=/opt/openjdk11.0.11.9
+      #       [Service]
+      #       Type=forking
 
-            Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid
-            Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}
-            Environment='CATALINA_OPTS=-Xms128M -Xmx256M -Djava.net.preferIPv4Stack=true -Dapplication.module=job -Dapplication.environment.properties=/opt/config/PNDS/TSconf'
-            Environment='JAVA_OPTS=-Djava.awt.headless=true'
-            Environment='JAVA_OPTS=-Djava.library.path=/opt/cloudhsm/lib'
-            Environment=SPRING_APPLICATION_JSON='{"TOKENGATEWAY": {"COREPATH": "file:/opt/config/","LOG4JAPI": "file:/opt/config/log4j2-api.xml"}}'
+      #       Environment=JAVA_HOME=/opt/openjdk11.0.11.9
 
-            ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh
-            ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh
-            SuccessExitStatus=143
+      #       Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid
+      #       Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}
+      #       Environment='CATALINA_OPTS=-Xms128M -Xmx256M -Djava.net.preferIPv4Stack=true -Dapplication.module=job -Dapplication.environment.properties=/opt/config/PNDS/TSconf'
+      #       Environment='JAVA_OPTS=-Djava.awt.headless=true'
+      #       Environment='JAVA_OPTS=-Djava.library.path=/opt/cloudhsm/lib'
+      #       Environment=SPRING_APPLICATION_JSON='{"TOKENGATEWAY": {"COREPATH": "file:/opt/config/","LOG4JAPI": "file:/opt/config/log4j2-api.xml"}}'
 
-            User=tomcat
-            Group=tomcat
-            UMask=0007
-            Environment='UMASK=002'
-            RestartSec=10
-            Restart=always
+      #       ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh
+      #       ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh
+      #       SuccessExitStatus=143
 
-            [Install]
-            WantedBy=multi-user.target
-          dest: /etc/systemd/system/{{ update_tomcat_service }}.service
-        register: tomcat_service
+      #       User=tomcat
+      #       Group=tomcat
+      #       UMask=0007
+      #       Environment='UMASK=002'
+      #       RestartSec=10
+      #       Restart=always
+
+      #       [Install]
+      #       WantedBy=multi-user.target
+      #     dest: /etc/systemd/system/{{ update_tomcat_service }}.service
+      #   register: tomcat_service
 
       - name: Enable updated httpd service
         command: "systemctl enable {{ update_tomcat_service }}.service"
@@ -133,4 +139,4 @@
       - name: Delete downloaded httpd installer
         file: 
           path: "/opt/source/{{ tomcat_version }}.tar.gz"
-          state: absent
+          state: absent 
