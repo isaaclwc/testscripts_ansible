@@ -13,14 +13,23 @@
 
     tasks:
       - name: Stop existing tomcat service
-        command: "systemctl stop {{ existing_tomcat_service }}.service"
-        become: yes
+        systemd_service:
+          state: stopped
+          name: "{{ existing_tomcat_service }}"
+          enabled: false
         async: 100
         poll: 5
         register: stop_tomcat
 
-      - name: Disable existing tomcat service
-        command: "systemctl disable {{ existing_tomcat_service }}.service"
+      # - name: Stop existing tomcat service
+      #   command: "systemctl stop {{ existing_tomcat_service }}.service"
+      #   become: yes
+      #   async: 100
+      #   poll: 5
+      #   register: stop_tomcat
+
+      # - name: Disable existing tomcat service
+      #   command: "systemctl disable {{ existing_tomcat_service }}.service"
 
       - name: Existing tomcat status check
         command: "systemctl status {{ existing_tomcat_service }}.service"
@@ -31,18 +40,19 @@
         debug:
           var: existing_tomcat_status
 
-      - name: Download new apache tomcat version
-        get_url: 
-          url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
-          dest: /opt/source/
-          validate_certs: no
-        register: tomcat_download
+      # - name: Download new apache tomcat version
+      #   get_url: 
+      #     url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+      #     dest: /opt/source/
+      #     validate_certs: no
+      #   register: tomcat_download
 
       - name: Extract tomcat
         unarchive:
-          src: "{{ tomcat_download.dest }}"
+          src: "/opt/source/{{ tomcat_version }}"
           dest: /opt/source/
           remote_src: yes
+        become: yes
         register: tomcat_extracted
 
       - name: Formating tomcat tomcat name
@@ -80,52 +90,51 @@
           dest: "/etc/systemd/system/{{ update_tomcat_service }}.service"
           remote_src: yes
 
-      # - name: Create updated tomcat.service file with content
-      #   copy:
-      #     content: |
-      #       [Unit]
-      #       Description=Apache Tomcat Application Container
-      #       Wants=network.target
-      #       After=network.target
+      - name: Modify java environment path in tomcat service (catalina pid)
+        replace:
+          path: "/etc/systemd/system/{{ tomcat_service_name }}.service"
+          regexp: "'^Environment=CATALINA_PID=/opt/{{existing_tomcat_directory}}/temp/tomcat.pid'"
+          replace: "'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'"
 
-      #       [Service]
-      #       Type=forking
+      - name: Modify java environment path in tomcat service (catalina home)
+        replace:
+          path: "/etc/systemd/system/{{ tomcat_service_name }}.service"
+          regexp: "'^Environment=CATALINA_HOME=/opt/{{existing_tomcat_directory}}'"
+          replace: "'Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}'"
 
-      #       Environment=JAVA_HOME=/opt/openjdk11.0.11.9
+      - name: Modify java environment path in tomcat service (startup.sh)
+        replace:
+          path: "/etc/systemd/system/{{ tomcat_service_name }}.service"
+          regexp: "'^ExecStart=/bin/bash /opt/{{existing_tomcat_directory}}/bin/startup.sh'"
+          replace: "'ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh'"
 
-      #       Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid
-      #       Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}
-      #       Environment='CATALINA_OPTS=-Xms128M -Xmx256M -Djava.net.preferIPv4Stack=true -Dapplication.module=job -Dapplication.environment.properties=/opt/config/PNDS/TSconf'
-      #       Environment='JAVA_OPTS=-Djava.awt.headless=true'
-      #       Environment='JAVA_OPTS=-Djava.library.path=/opt/cloudhsm/lib'
-      #       Environment=SPRING_APPLICATION_JSON='{"TOKENGATEWAY": {"COREPATH": "file:/opt/config/","LOG4JAPI": "file:/opt/config/log4j2-api.xml"}}'
-
-      #       ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh
-      #       ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh
-      #       SuccessExitStatus=143
-
-      #       User=tomcat
-      #       Group=tomcat
-      #       UMask=0007
-      #       Environment='UMASK=002'
-      #       RestartSec=10
-      #       Restart=always
-
-      #       [Install]
-      #       WantedBy=multi-user.target
-      #     dest: /etc/systemd/system/{{ update_tomcat_service }}.service
-      #   register: tomcat_service
-
-      - name: Enable updated httpd service
-        command: "systemctl enable {{ update_tomcat_service }}.service"
-        become: yes
+      - name: Modify java environment path in tomcat service (shutdown.sh)
+        replace:
+          path: "/etc/systemd/system/{{ tomcat_service_name }}.service"
+          regexp: "'^ExecStop=/bin/bash /opt/{{existing_tomcat_directory}}/bin/shutdown.sh'"
+          replace: "'ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh'"      
 
       - name: Start updated tomcat service
-        command: "systemctl start {{ update_tomcat_service }}.service"
+        systemd_service:
+          state: started
+          name: "{{ update_tomcat_service }}"
+          enabled: true
         become: yes
+        become_user: root
         async: 100
         poll: 5
         register: start_tomcat
+
+      # - name: Enable updated httpd service
+      #   command: "systemctl enable {{ update_tomcat_service }}.service"
+      #   become: yes
+
+      # - name: Start updated tomcat service
+      #   command: "systemctl start {{ update_tomcat_service }}.service"
+      #   become: yes
+      #   async: 100
+      #   poll: 5
+      #   register: start_tomcat
 
       - name: Status check on the updated tomcat service
         command: "systemctl status {{ update_tomcat_service }}.service"
@@ -136,7 +145,7 @@
         debug:
           var: upgraded_tomcat_status_check
 
-      - name: Delete downloaded httpd installer
+      - name: Delete downloaded tomcat installer
         file: 
           path: "/opt/source/{{ tomcat_version }}.tar.gz"
           state: absent 
