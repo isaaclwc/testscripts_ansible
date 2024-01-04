@@ -49,7 +49,7 @@
 
       - name: Extract tomcat
         unarchive:
-          src: "/opt/source/{{ tomcat_version }}"
+          src: "/opt/source/{{ tomcat_version }}.tar.gz"
           dest: /opt/source/
           remote_src: yes
         become: yes
