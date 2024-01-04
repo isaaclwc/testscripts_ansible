@@ -10,7 +10,10 @@
           path: "/etc/systemd/system/{{ update_tomcat_service }}.service"
           regexp: "'^Environment=CATALINA_PID=\/opt\/{{existing_tomcat_directory}}/temp\/tomcat.pid$'"
           replace: "'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'"
-        register: modify_service_pid
+
+      - name: Debug regex substitution
+        debug:
+          msg: "Regex: '^Environment=CATALINA_PID=\/opt\/{{existing_tomcat_directory}}/temp\/tomcat.pid$'"
 
       # - name: Modify java environment path in tomcat service (catalina home)
       #   replace:
