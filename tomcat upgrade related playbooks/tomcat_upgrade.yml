@@ -145,7 +145,7 @@
         debug:
           var: upgraded_tomcat_status_check
 
-      - name: Delete downloaded tomcat installer
-        file: 
-          path: "/opt/source/{{ tomcat_version }}.tar.gz"
-          state: absent 
+      # - name: Delete downloaded tomcat installer
+      #   file: 
+      #     path: "/opt/source/{{ tomcat_version }}.tar.gz"
+      #     state: absent 
