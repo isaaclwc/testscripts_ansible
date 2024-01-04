@@ -12,9 +12,10 @@
           replace: "'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'"
         register: modify_service_pid
 
-      - name: Display modify_service_pid
+      - name: Debug regex substitution
         debug:
-          var: modify_service_pid
+          msg: "Regex: '^Environment=CATALINA_PID=/opt/{{existing_tomcat_directory}}/temp/tomcat.pid'"
+
 
       - name: Modify java environment path in tomcat service (catalina home)
         replace:
@@ -23,9 +24,9 @@
           replace: "'Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}'"
         register: modify_service_home
 
-      - name: Display modify_service_home
+      - name: Debug regex substitution
         debug:
-          var: modify_service_pid
+          msg: "Regex: '^Environment=CATALINA_HOME=/opt/{{existing_tomcat_directory}}'"
 
       - name: Modify java environment path in tomcat service (startup.sh)
         replace:
@@ -34,9 +35,9 @@
           replace: "'ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh'"
         register: modify_service_startup
 
-      - name: Display modify_service_startup
+      - name: Debug regex substitution
         debug:
-          var: modify_service_pid
+          msg: "Regex: '^ExecStart=/bin/bash /opt/{{existing_tomcat_directory}}/bin/startup.sh'"
 
       - name: Modify java environment path in tomcat service (shutdown.sh)
         replace:
@@ -45,6 +46,6 @@
           replace: "'ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh'" 
         register: modify_service_shutdown
 
-      - name: Display modify_service_shutdown
+      - name: Debug regex substitution
         debug:
-          var: modify_service_pid
+          msg: "Regex: '^ExecStop=/bin/bash /opt/{{existing_tomcat_directory}}/bin/shutdown.sh'"
