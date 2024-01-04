@@ -93,26 +93,26 @@
       - name: Modify java environment path in tomcat service (catalina pid)
         replace:
           path: "/etc/systemd/system/{{ update_tomcat_service }}.service"
-          regexp: "'^Environment=CATALINA_PID=/opt/{{existing_tomcat_directory}}/temp/tomcat.pid'"
-          replace: "'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'"
+          regexp: '^Environment=CATALINA_PID=\/opt\/{{existing_tomcat_directory}}/temp\/tomcat.pid$'
+          replace: 'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'
 
       - name: Modify java environment path in tomcat service (catalina home)
         replace:
           path: "/etc/systemd/system/{{ update_tomcat_service }}.service"
-          regexp: "'^Environment=CATALINA_HOME=/opt/{{existing_tomcat_directory}}'"
-          replace: "'Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}'"
+          regexp: '^Environment=CATALINA_HOME=/opt/{{existing_tomcat_directory}}'
+          replace: 'Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}'
 
       - name: Modify java environment path in tomcat service (startup.sh)
         replace:
           path: "/etc/systemd/system/{{ update_tomcat_service }}.service"
-          regexp: "'^ExecStart=/bin/bash /opt/{{existing_tomcat_directory}}/bin/startup.sh'"
-          replace: "'ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh'"
+          regexp: '^ExecStart=/bin/bash /opt/{{existing_tomcat_directory}}/bin/startup.sh'
+          replace: 'ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh'
 
       - name: Modify java environment path in tomcat service (shutdown.sh)
         replace:
           path: "/etc/systemd/system/{{ update_tomcat_service }}.service"
-          regexp: "'^ExecStop=/bin/bash /opt/{{existing_tomcat_directory}}/bin/shutdown.sh'"
-          replace: "'ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh'"      
+          regexp: '^ExecStop=/bin/bash /opt/{{existing_tomcat_directory}}/bin/shutdown.sh'
+          replace: 'ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh'
 
       - name: Start updated tomcat service
         systemd_service:
