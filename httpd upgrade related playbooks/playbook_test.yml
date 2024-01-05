@@ -5,9 +5,9 @@
     become: yes
 
     tasks:
-      - name: Extract tomcat
+      - name: Archive previous tomcat
         archive:
-          src: "/opt/{{existing_tomcat_directory}}"
+          path: "/opt/{{existing_tomcat_directory}}"
           dest: "/opt/{{existing_tomcat_directory}}.tar.gz"
           remote_src: yes
         become: yes
