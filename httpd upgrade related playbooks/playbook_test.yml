@@ -5,11 +5,7 @@
     become: yes
 
     tasks:
-      - name: current system date
-        command: "date +%Y%m%d"
-        register: current_date
-
-      - name: Make a copy of the existing tomcat service for the updated tomcat service (command)
-        command: "cp /etc/systemd/system/{{ existing_tomcat_service }}.service /etc/systemd/system/backup/{{ existing_tomcat_service }}_{{ current_date.stdout }}.service.BAK"
+      - name: Archive existing tomcat instance
+        command: "tar -zcvf /opt/{{existing_tomcat_directory}}.tar.gz /opt/{{existing_tomcat_directory}}"
         become: yes
         become_user: root
