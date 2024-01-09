@@ -9,6 +9,7 @@
         command: "date +%Y%m%d"
         register: current_date
 
-      - name: display current date
-        debug:
-          var: current_date
+      - name: Make a copy of the existing tomcat service for the updated tomcat service (command)
+        command: "cp /etc/systemd/system/{{ existing_tomcat_service }}.service /etc/systemd/system/backup/{{ existing_tomcat_service }}_{{ current_date.stdout }}.service.BAK"
+        become: yes
+        become_user: root
