@@ -5,10 +5,10 @@
     become: yes
 
     tasks:
-      - name: Archive previous tomcat
-        archive:
-          path: "/opt/{{existing_tomcat_directory}}"
-          dest: "/opt/{{existing_tomcat_directory}}.tar.gz"
-          remote_src: yes
-        become: yes
-        register: tomcat_archive
+      - name: current system date
+        command: "date +%Y%m%d"
+        register: current_date
+
+      - name: display current date
+        debug:
+          var: current_date
