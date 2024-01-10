@@ -1,0 +1,151 @@
+---
+  - name: Tomcat upgrade task
+    hosts: "{{ specific_host }}"
+    gather_facts: no
+    become: yes
+
+    tasks:
+      # - name: Download new apache tomcat version
+      #   get_url: 
+      #     url: https://archive.apache.org/dist/tomcat/tomcat-9/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz
+      #     dest: /opt/source/
+      #     validate_certs: no
+      #   register: tomcat_download
+
+      - name: Extract tomcat
+        unarchive:
+          src: "/home/ec2-user/patch/{{ tomcat_version }}.tar.gz"
+          dest: /home/ec2-user/patch/
+          remote_src: yes
+        become: yes
+        register: tomcat_extracted
+
+      - name: Formating tomcat tomcat name
+        set_fact:
+          tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: Move extracted tomcat directory to /opt directory
+        command: "mv /home/ec2-user/patch/{{tomcat_directory_name}} /opt/{{update_tomcat_directory}}" 
+        become: yes
+
+      - name: Remove contents of conf folder
+        file:
+          path: "/opt/{{update_tomcat_directory}}/conf/"
+          state: absent
+        become: yes
+        become_user: root
+
+      - name: Copy contents of existing conf directory to updated conf directory
+        copy:
+          src: "/opt/{{existing_tomcat_directory}}/conf/"
+          dest: "/opt/{{update_tomcat_directory}}/conf/"
+          remote_src: yes
+        become: yes
+        become_user: root
+
+      - name: Register System Current Date
+        command: "date +%Y%m%d"
+        register: current_date
+
+      - name: Make a copy of the existing tomcat service for the updated tomcat service (command)
+        command: "cp /etc/systemd/system/{{ existing_tomcat_service }}.service /etc/systemd/system/{{ existing_tomcat_service }}_{{ current_date.stdout }}.service.BAK"
+        become: yes
+        become_user: root
+
+      - name: Modify java environment path in tomcat service (catalina pid)
+        replace:
+          path: "/etc/systemd/system/{{ existing_tomcat_service }}.service"
+          regexp: '^Environment=CATALINA_PID=\/opt\/{{existing_tomcat_directory}}/temp\/tomcat.pid$'
+          replace: 'Environment=CATALINA_PID=/opt/{{update_tomcat_directory}}/temp/tomcat.pid'
+        become: yes
+        become_user: root
+
+      - name: Modify java environment path in tomcat service (catalina home)
+        replace:
+          path: "/etc/systemd/system/{{ existing_tomcat_service }}.service"
+          regexp: '^Environment=CATALINA_HOME=/opt/{{existing_tomcat_directory}}'
+          replace: 'Environment=CATALINA_HOME=/opt/{{update_tomcat_directory}}'
+        become: yes
+        become_user: root
+
+      - name: Modify java environment path in tomcat service (startup.sh)
+        replace:
+          path: "/etc/systemd/system/{{ existing_tomcat_service }}.service"
+          regexp: '^ExecStart=/bin/bash /opt/{{existing_tomcat_directory}}/bin/startup.sh'
+          replace: 'ExecStart=/bin/bash /opt/{{update_tomcat_directory}}/bin/startup.sh'
+        become: yes
+        become_user: root
+
+      - name: Modify java environment path in tomcat service (shutdown.sh)
+        replace:
+          path: "/etc/systemd/system/{{ existing_tomcat_service }}.service"
+          regexp: '^ExecStop=/bin/bash /opt/{{existing_tomcat_directory}}/bin/shutdown.sh'
+          replace: 'ExecStop=/bin/bash /opt/{{update_tomcat_directory}}/bin/shutdown.sh'
+        become: yes
+        become_user: root
+
+      - name: Delete webapp contents of updated tomcat
+        file:
+          path: "/opt/{{update_tomcat_directory}}/webapps/"
+          state: absent
+        become: yes
+        become_user: root
+
+      - name: Copy webapps from existing tomcat to updated tomcat
+        copy:
+          src: "/opt/{{ existing_tomcat_directory }}/webapps/"
+          dest: "/opt/{{ update_tomcat_directory }}/webapps/"
+          remote_src: yes
+        become: yes
+        become_user: root
+
+      - name: Change new tomcat directory ownership 
+        file:
+          path: "/opt/{{update_tomcat_directory}}"
+          owner: tomcat
+          group: tomcat
+          mode: "0775"
+          recurse: yes
+        become: yes
+        become_user: root
+        register: change_ownership
+
+      - name: Stop existing tomcat service
+        systemd_service:
+          state: stopped
+          name: "{{ existing_tomcat_service }}"
+          enabled: false
+        become: yes
+        become_user: root
+        async: 100
+        poll: 5
+        register: stop_tomcat
+
+      - name: Existing tomcat status check
+        command: "systemctl status {{ existing_tomcat_service }}.service"
+        register: existing_tomcat_status
+        ignore_errors: yes
+
+      - name: Display existing tomcat status check
+        debug:
+          var: existing_tomcat_status
+
+      - name: Start updated tomcat service
+        systemd_service:
+          state: started
+          name: "{{ existing_tomcat_service }}"
+          enabled: true
+        become: yes
+        become_user: root
+        async: 100
+        poll: 5
+        register: start_tomcat
+
+      - name: Status check on the updated tomcat service
+        command: "systemctl status {{ existing_tomcat_service }}.service"
+        become: yes
+        register: upgraded_tomcat_status_check
+        
+      - name: Display status check on the updated tomcat service
+        debug:
+          var: upgraded_tomcat_status_check
