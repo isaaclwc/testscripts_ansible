@@ -31,5 +31,5 @@
       - name: Modify setenv.sh file in the respective tomcat instance
         replace:
           path: "/opt/{{ update_tomcat_directory }}/bin/setenv.sh"
-          regexp: '^.*-javaagent:"/usr/java/{{ existing_java_name }}/lib/elastic-apm-agent-1.12.0.jar".*\\$'
-          replace: "-javaagent:"/usr/java/{{ update_java_name }}/lib/elastic-apm-agent-1.12.0.jar" \"
+          regexp: '^.*-javaagent:"/usr/java/{{existing_javaagent_path}}".*\\$'
+          replace: "-javaagent:"/usr/java/{{updated_javaagent_path}}" \"
