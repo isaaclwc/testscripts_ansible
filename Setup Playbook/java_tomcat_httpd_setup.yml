@@ -26,7 +26,6 @@
           path: /etc/profile
           line: "{{ item }}"
           insertafter: '^# will prevent the need for merging in future updates.'
-          
         become: yes
         become_user: root
         with_items:
@@ -34,6 +33,7 @@
           - export PATH=$JAVA_HOME/bin:$PATH
 
       ###################################################################################################################
+      
       - name: Extract tomcat
         unarchive:
           src: "/opt/source/apache-tomcat-{{tomcat_version}}.tar.gz"
