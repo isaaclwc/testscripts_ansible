@@ -7,8 +7,34 @@
     tasks:
       - name: Extract java package
         command: "tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
+        become: yes
+        become_user: root
         register: java_extracted
 
-      - name: display java extracted output
+      - name: Extract java package
+        unarchive:
+          src: /opt/{{ openjdk_version }}.tar.gz
+          dest: /usr/java/
+          remote_src: yes
+        register: java_extracted
+
+      - name: Add JAVA HOME path to /etc/profile
+        lineinfile:
+          path: /etc/profile
+          line: "{{ item }}"
+          insertafter: '^# /etc/profile'
+        become: yes
+        become_user: root
+        with_items:
+          - export JAVA_HOME=/usr/java/{{java_extracted.stdout_lines[0]}}
+          - export PATH=$JAVA_HOME/bin:$PATH
+      
+      - name: Check JAVA version
+        command: "java -version"
+        become: yes
+        become_user: root
+        register: java_version_check
+
+      - name: Display JAVA version check
         debug:
-          var: java_extracted
+          var: java_version_check
