@@ -7,7 +7,7 @@
     tasks:
       - name: Extract java package
         unarchive:
-          src: /opt/{{ openjdk_version }}.tar.gz
+          src: /opt/jdk-8u202-linux-x64.tar.gz
           dest: /usr/java/
           remote_src: yes
         register: java_extracted
