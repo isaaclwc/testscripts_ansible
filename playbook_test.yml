@@ -1,0 +1,17 @@
+---
+  - name: test playbook scripts
+    hosts: "{{ specific_host }}"
+    gather_facts: no
+    become: yes
+
+    tasks:
+      - name: Extract java package
+        unarchive:
+          src: /opt/{{ openjdk_version }}.tar.gz
+          dest: /usr/java/
+          remote_src: yes
+        register: java_extracted
+
+      - name: display java extracted output
+        debug:
+          var: java_extracted

@@ -1,0 +1,203 @@
+---
+  - name: Httpd update task
+    hosts: "{{ specific_host }}"
+    gather_facts: no
+    become: yes
+
+    tasks:
+      # - name: Download httpd installer
+      #   get_url:
+      #     url: "https://archive.apache.org/dist/httpd/{{ upgrade_httpd_version }}.tar.gz"
+      #     dest: /opt/installer/
+      #     validate_certs: no
+      #   register: httpd_download
+
+      - name: Extract httpd installer
+        unarchive: 
+          src: "/opt/installer/{{ upgrade_httpd_version }}.tar.gz"
+          dest: /opt/installer/
+          remote_src: yes
+        become: yes
+        become_user: root
+        register: httpd_extracted
+
+      - name: Formating httpd name
+        set_fact:
+          httpd_directory_name: "{{ httpd_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
+      - name: Copy apr files to httpd installer directory
+        command: "cp -r /opt/installer/apr-1.7.0 /opt/installer/{{ httpd_directory_name }}/srclib/apr"
+        become: yes
+        become_user: root
+        register: copied_apr_files
+
+      - name: Copy apr-util files to httpd installer directory
+        command: "cp -r /opt/installer/apr-util-1.6.1 /opt/installer/{{ httpd_directory_name }}/srclib/apr-util"
+        become: yes
+        become_user: root
+        register: copied_apr_util_files
+
+      - name: Compile httpd installer
+        shell: |
+          ./buildconf
+          ./configure --with-included-apr --prefix=/opt/{{ upgraded_apache_name }}/ --enable-ssl --enable-so
+          make
+          make install
+        become: yes
+        become_user: root
+        args:
+          chdir: "/opt/installer/{{ httpd_directory_name }}"
+        register: installed_httpd
+
+      - name: Change new apache directory ownership 
+        file:
+          path: "/opt/{{ upgraded_apache_name }}/"
+          owner: apache
+          group: apache
+          recurse: yes
+        become: yes
+        become_user: root
+        register: change_directory
+
+      - name: Create updated httpd.service file with content
+        copy:
+          content: |
+            [Unit]
+            Description=The Apache HTTP
+            After=network.target
+
+            [Service]
+            Type=forking
+            ExecStart=/opt/{{ upgraded_apache_name }}/bin/apachectl -k start
+            ExecReload=/opt/{{ upgraded_apache_name }}/bin/apachectl -k graceful
+            ExecStop=/opt/{{ upgraded_apache_name }}/bin/apachectl -k graceful-stop
+            PIDFile=/opt/{{ upgraded_apache_name }}/logs/httpd.pid
+
+            PrivateTmp=true
+
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/{{ httpd_service_name }}.service
+        become: yes
+        become_user: root
+        register: httpd_service
+
+      - name: Make a backup copy of new httpd conf file
+        copy:
+          src: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          dest: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf.BAK" 
+          remote_src: yes
+        become: yes
+        become_user: root
+
+      - name: Copy existing httpd.conf to new apache conf directory
+        copy: 
+          src: "/opt/{{ existing_apache_name }}/conf/httpd.conf"
+          dest: "/opt/{{ upgraded_apache_name }}/conf/"
+          remote_src: yes
+        become: yes
+        become_user: root
+
+      - name: Create ssl folder on updated apache directory
+        file:
+          path: "/opt/{{ upgraded_apache_name }}/conf/ssl"
+          state: directory
+        become: yes
+        become_user: root
+        register: ssl_directory
+
+      - name: Copy existing ssl to the new apache folder
+        copy:
+          src: /opt/{{ existing_apache_name }}/conf/ssl/
+          dest: "{{ ssl_directory.path }}/"
+          remote_src: yes
+        become: yes
+        become_user: root
+
+      - name: Update line in httpd.conf (ServerRoot)
+        replace:
+          path: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          regexp: '^(ServerRoot\s+"/opt/{{ existing_apache_name }}/".*)$'
+          replace: 'ServerRoot "/opt/{{ upgraded_apache_name }}/"'
+        become: yes
+        become_user: root
+
+      - name: Update line in httpd.conf (DocumentRoot)
+        replace:
+          path: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          regexp: '^DocumentRoot\s+"/opt/{{ existing_apache_name }}//htdocs"$'
+          replace: 'DocumentRoot "/opt/{{ upgraded_apache_name }}//htdocs"'
+        become: yes
+        become_user: root
+
+      - name: Update line in httpd.conf (Directory)
+        replace:
+          path: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//htdocs">.*$'
+          replace: '<Directory "/opt/{{ upgraded_apache_name }}//htdocs">'
+        become: yes
+        become_user: root
+
+      - name: Update line in httpd.conf (ScriptAlias)
+        replace:
+          path: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          regexp: '^    ScriptAlias\s+/cgi-bin/\s+"/opt/{{ existing_apache_name }}//cgi-bin/".*$'
+          replace: '    ScriptAlias /cgi-bin/ "/opt/{{ upgraded_apache_name }}//cgi-bin/"'
+        become: yes
+        become_user: root
+
+      - name: Update line in httpd.conf (cgi-bin)
+        replace:
+          path: "/opt/{{ upgraded_apache_name }}/conf/httpd.conf"
+          regexp: '^<Directory\s+"/opt/{{ existing_apache_name }}//cgi-bin">.*$'
+          replace: '<Directory "/opt/{{ upgraded_apache_name }}//cgi-bin">'
+        become: yes
+        become_user: root
+
+      - name: Stop existing httpd service
+        systemd_service:
+          state: stopped
+          name: "{{ existing_httpd_service_name }}"
+          enabled: false
+        become: yes
+        become_user: root
+        async: 100
+        poll: 5
+        register: stop_httpd
+
+      - name: Status check on the existing httpd service
+        command: "systemctl status {{ existing_httpd_service_name }}.service"
+        become: yes
+        register: httpd_status_check
+        ignore_errors: yes
+
+      - name: Display the status of the existing httpd service
+        debug:
+          var: httpd_status_check
+
+      - name: Start updated httpd service
+        systemd_service:
+          state: started
+          name: "{{ httpd_service_name }}"
+          enabled: true
+        become: yes
+        become_user: root
+        async: 100
+        poll: 5
+        register: start_httpd
+
+      - name: Status check on the updated httpd service
+        command: "systemctl status {{ httpd_service_name }}.service"
+        become: yes
+        register: upgraded_httpd_status_check
+        
+      - name: Display status check on the updated httpd service
+        debug:
+          var: upgraded_httpd_status_check
+
+      - name: Delete compiled httpd installer directory
+        file:
+          path: "/opt/installer/{{ httpd_directory_name }}"
+          state: absent
+        become: yes
+        become_user: root
