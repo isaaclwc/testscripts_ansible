@@ -6,7 +6,7 @@
 
     tasks:
       - name: Extract java package
-        command: "tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz /usr/java/"
+        command: "tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
         register: java_extracted
 
       - name: display java extracted output
