@@ -6,10 +6,18 @@
 
     tasks:
       - name: Extract java package
-        command: "tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
+        command: "sudo tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
         become: yes
         become_user: root
         register: java_extracted
+
+      - name: Backup existing /etc/profile file
+        copy: 
+          src: /etc/profile
+          dest: /etc/profile.BAK
+          remote_src: yes
+        become: yes
+        become_user: root
 
       - name: Add JAVA HOME path to /etc/profile
         lineinfile:
