@@ -11,13 +11,6 @@
         become_user: root
         register: java_extracted
 
-      - name: Extract java package
-        unarchive:
-          src: /opt/{{ openjdk_version }}.tar.gz
-          dest: /usr/java/
-          remote_src: yes
-        register: java_extracted
-
       - name: Add JAVA HOME path to /etc/profile
         lineinfile:
           path: /etc/profile
