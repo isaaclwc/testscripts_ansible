@@ -5,6 +5,7 @@
     become: yes
 
     tasks:
+
       ###################################################################################################################
 
       - name: Extract java package
@@ -49,6 +50,12 @@
         move: 
           src: "/opt/source/{{tomcat_directory_name}}"
           dest: "/opt/{{update_tomcat_directory}}"
+
+      - name: Create tomcat user
+        command: "useradd -d /opt/tomcat -s /bin/nologin tomcat"
+        become: yes
+        become_user: root
+        register: create_tomcat_user
 
       - name: Change new tomcat directory ownership 
         file:
@@ -120,3 +127,7 @@
         file: 
           path: "/opt/source/{{ tomcat_version }}.tar.gz"
           state: absent
+
+      ###################################################################################################################
+
+      
