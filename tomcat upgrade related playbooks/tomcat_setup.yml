@@ -34,7 +34,7 @@
         replace:
           path: "/opt/{{tomcat_directory}}/conf/server.xml"
           regexp: '^(\s*<Connector port=")8080(" protocol="HTTP/1.1".*)$'
-          replace: '    <Connector port=""{{ tomcat_port }}"" protocol="HTTP/1.1"'
+          replace: '    <Connector port="{{ tomcat_port }}" protocol="HTTP/1.1"'
         become: yes
         become_user: root
 
