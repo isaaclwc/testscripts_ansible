@@ -18,6 +18,7 @@
           dest: /opt/source/
           remote_src: yes
         become: yes
+        become_user: root
         register: tomcat_extracted
 
       - name: Formating tomcat tomcat name
@@ -27,6 +28,15 @@
       - name: Move extracted tomcat directory to /opt directory
         command: "mv /opt/source/{{tomcat_directory_format}} /opt/{{tomcat_directory}}" 
         become: yes
+        become_user: root
+
+      - name: Replace HTTP connector port in server.xml
+        lineinfile:
+          path: "/opt/{{tomcat_directory}}/conf/server.xml"
+          regexp: '^(\s*<Connector port=")8080(" protocol="HTTP/1.1".*)$'
+          line: '\g<1>{{ tomcat_port }}\2'
+        become: yes
+        become_user: root
 
       - name: Change new tomcat directory ownership 
         file:
@@ -70,7 +80,8 @@
             [Install]
             WantedBy=multi-user.target
           dest: /etc/systemd/system/{{ tomcat_service }}.service
-        register: httpd_service
+        become: yes
+        become_user: root
 
       - name: Start updated tomcat service
         systemd_service:
@@ -86,6 +97,7 @@
       - name: Status check on the updated tomcat service
         command: "systemctl status {{ tomcat_service }}.service"
         become: yes
+        become_user: root
         register: upgraded_tomcat_status_check
         
       - name: Display status check on the updated tomcat service
