@@ -30,11 +30,11 @@
         become: yes
         become_user: root
 
-      - name: Replace HTTP connector port in server.xml
-        lineinfile:
+      - name: Modify port in server.xml
+        replace:
           path: "/opt/{{tomcat_directory}}/conf/server.xml"
-          regexp: '^(\s*<Connector port=")8080(" protocol="HTTP/1.1".*)$'
-          line: '\g<1>{{ tomcat_port }}\2'
+          regexp: '^    <Connector port="8080" protocol="HTTP/1.1"$'
+          replace: '    <Connector port="{{ tomcat_port }}" protocol="HTTP/1.1"'
         become: yes
         become_user: root
 
