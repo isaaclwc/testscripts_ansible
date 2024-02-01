@@ -1,5 +1,5 @@
 ---
-  - name: Tomcat upgrade task
+  - name: Tomcat installation
     hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
