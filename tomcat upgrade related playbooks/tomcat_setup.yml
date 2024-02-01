@@ -100,9 +100,7 @@
         become_user: root
 
       - name: Reload systemd configuration
-        systemd:
-          name: systemd
-          state: reloaded
+        command: "sudo systemctl daemon-reload"
         become: yes
         become_user: root
 
