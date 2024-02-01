@@ -99,6 +99,13 @@
         become: yes
         become_user: root
 
+      - name: Reload systemd configuration
+        systemd:
+          name: systemd
+          state: reloaded
+        become: yes
+        become_user: root
+
       - name: Start updated tomcat service
         systemd_service:
           state: started
