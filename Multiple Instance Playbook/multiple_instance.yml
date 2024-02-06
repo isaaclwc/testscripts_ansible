@@ -9,21 +9,23 @@
         include_vars:
             file: variables.yml
 
-      - name: Loop through instances
-        block:
-          - name: Check if previous instance is running
-            ansible.builtin.shell: "systemctl is-active {{ prev_instance.service_file }}"
-            register: prev_instance_status
-            ignore_errors: yes  # Ignore errors if there is no previous instance
+      - name: Check if previous instance is running
+        ansible.builtin.shell: "systemctl is-active {{ item.service_file }}"
+        register: prev_instance_status
+        ignore_errors: yes  # Ignore errors if there is no previous instance
+        with_items: "{{ instances }}"
+        loop_control:
+          index_var: prev_index
+          loop_var: item
+          label: "{{ prev_index }}"
 
-          - name: Configure current instance if previous instance is running
-            debug:
-              msg: "Configuring instance {{ item.instance }} with directory {{ item.application_directory }} and service file {{ item.service_file }}"
-            when: prev_instance_status is succeeded
-        loop: "{{ instances }}"
+      - name: Loop through instances
+        debug:
+          msg: "Configuring instance {{ item.instance }} with directory {{ item.application_directory }} and service file {{ item.service_file }}"
+        when: prev_instance_status.results[prev_index | int].rc == 0
+        with_items: "{{ instances }}"
         loop_control:
           loop_var: item
-          prev_item: "{{ prev_instance }}"
 
 
       # - name: Status check on the updated tomcat service
