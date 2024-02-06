@@ -22,7 +22,7 @@
       - name: Configure applications for each instance
         debug:
           msg: "Configuring {{ item.hostname }} - instance {{ item_instance.instance }} with directory {{ item_instance.application_directory }} and service file {{ item_instance.service_file }}"
-        # with_items: "{{ servers }}"
+        with_items: "{{ servers }}"
         # delegate_to: "{{ item.hostname }}"
         # loop_control:
         #   label: "{{ item.hostname }}"
