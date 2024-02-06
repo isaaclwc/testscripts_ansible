@@ -1,5 +1,5 @@
 ---
-  - name: Multi Variable Test
+  - name: Multi Instance Test
     hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
@@ -7,7 +7,7 @@
     tasks:
       - name: Include variable file
         include_vars:
-            file: tomcat_variables.yml
+            file: variables.yml
 
       - name: Status check on the updated tomcat service
         command: "systemctl status {{ item.service }}.service"
