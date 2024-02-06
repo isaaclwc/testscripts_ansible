@@ -9,12 +9,29 @@
         include_vars:
             file: variables.yml
 
-      - name: Status check on the updated tomcat service
-        command: "systemctl status {{ item.service_file }}.service"
-        become: yes
-        with_items: "{{ instances }}"
-        register: upgraded_tomcat_status_check
+      - name: Loop through instances
+        block:
+          - name: Check if previous instance is running
+            ansible.builtin.shell: "systemctl is-active {{ prev_instance.service_file }}"
+            register: prev_instance_status
+            ignore_errors: yes  # Ignore errors if there is no previous instance
+
+          - name: Configure current instance if previous instance is running
+            debug:
+              msg: "Configuring instance {{ item.instance }} with directory {{ item.application_directory }} and service file {{ item.service_file }}"
+            when: prev_instance_status is succeeded
+        loop: "{{ instances }}"
+        loop_control:
+          loop_var: item
+          prev_item: "{{ prev_instance }}"
+
+
+      # - name: Status check on the updated tomcat service
+      #   command: "systemctl status {{ item.service_file }}.service"
+      #   become: yes
+      #   with_items: "{{ instances }}"
+      #   register: upgraded_tomcat_status_check
         
-      - name: Display status check on the updated tomcat service
-        debug:
-          var: upgraded_tomcat_status_check
+      # - name: Display status check on the updated tomcat service
+      #   debug:
+      #     var: upgraded_tomcat_status_check
