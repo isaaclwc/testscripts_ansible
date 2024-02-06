@@ -13,7 +13,6 @@
         command: "systemctl status {{ item.service_file }}.service"
         become: yes
         with_items: "{{ instances }}"
-        when: item.hostname == ansible_hostname
         register: upgraded_tomcat_status_check
         
       - name: Display status check on the updated tomcat service
