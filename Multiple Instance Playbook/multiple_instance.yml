@@ -9,14 +9,16 @@
         include_vars:
             file: variables.yml
 
-      - name: Configure applications for each instance
-        debug:
-          msg: "Configuring {{ item.hostname }} - instance {{ item_instance.instance }} with directory {{ item_instance.application_directory }} and service file {{ item_instance.service_file }}"
-        with_items: "{{ servers }}"
-        loop_var: item_server
-        subelements:
-          - "{{ item_server.instances }}"
-          as: item_instance
+    - name: Configure applications for each instance
+      debug:
+        msg: "Configuring {{ item.hostname }} - instance {{ item_instance.instance }} with directory {{ item_instance.application_directory }} and service file {{ item_instance.service_file }}"
+      with_items: "{{ servers }}"
+      delegate_to: "{{ item.hostname }}"
+      loop_control:
+        label: "{{ item.hostname }}"
+      subelements:
+        - "{{ item.instances }}"
+        as: item_instance
 
       # - name: Status check on the updated tomcat service
       #   command: "systemctl status {{ item.service }}.service"
