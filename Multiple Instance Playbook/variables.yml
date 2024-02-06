@@ -1,10 +1,21 @@
-server:
+servers:
   - hostname: httpd-test1
     instances:
       - instance: 1
-        app_path: /opt/tomcat9.0.22_instance1
-        service: tomcat9_instance1
+        application_directory: /opt/tomcat9.0.22_instance1
+        service_file: tomcat9_instance1
 
       - instance: 2
-        app_path: /opt/tomcat9.0.22_instance2
-        service: tomcat9_instance2
+        application_directory: /opt/tomcat9.0.22_instance2
+        service_file: tomcat9_instance2
+
+# server:
+#   - hostname: httpd-test1
+#     instances:
+#       - instance: 1
+#         app_path: /opt/tomcat9.0.22_instance1
+#         service: tomcat9_instance1
+
+#       - instance: 2
+#         app_path: /opt/tomcat9.0.22_instance2
+#         service: tomcat9_instance2
