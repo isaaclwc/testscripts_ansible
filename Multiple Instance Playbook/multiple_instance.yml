@@ -18,7 +18,6 @@
           label: "{{ item.hostname }}"
         subelements:
           - "{{ item.instances }}"
-          as: item_instance
         register: upgraded_tomcat_status_check
         
       - name: Display status check on the updated tomcat service
