@@ -1,25 +1,19 @@
 ---
   - name: Multi Variable Test
-    hosts: "{{ server }}"
+    hosts: "{{ specific_host }}"
     gather_facts: no
     become: yes
-      vars:
-        server_name: "{{server}}"
-        instance_name: "{{instance}}"
 
     tasks:
-      - name: Include vars json
+      - name: Include variable file
         include_vars:
             file: tomcat_variables.yml
-      
-      - set_fact:
-          target_server: "{{lookup('vars',server)}}"
-          target_system: "{{lookup('vars',server)[instance]}}" 
-          target_instance: "{{lookup('vars',server)[instance]}}"
 
       - name: Status check on the updated tomcat service
-        command: "systemctl status {{ existing_tomcat_service }}.service"
+        command: "systemctl status {{ item.service }}.service"
         become: yes
+        with_items: "{{ server }}"
+        delegate_to: "{{ item.hostname }}"
         register: upgraded_tomcat_status_check
         
       - name: Display status check on the updated tomcat service
