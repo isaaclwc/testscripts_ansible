@@ -1,0 +1,10 @@
+---
+  - name: Test Windows Tasks
+    hosts: "{{ hostname }}"
+    gather_facts: yes
+
+    tasks:
+      - name: "What's my name again?"
+        debug:
+          msg: "{{ ansible_user }}"
+        become: yes
