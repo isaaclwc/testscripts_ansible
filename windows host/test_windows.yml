@@ -1,10 +1,11 @@
 ---
   - name: Test Windows Tasks
     hosts: "{{ hostname }}"
-    gather_facts: yes
+    gather_facts: no
 
     tasks:
-      - name: "What's my name again?"
-        debug:
-          msg: "{{ ansible_user }}"
-        become: yes
+      - name: Extract Tomcat zip file
+        win_unzip:
+          src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
+          dest: C:\Users\Administrator\Desktop\Installer
+          remote_src: yes
