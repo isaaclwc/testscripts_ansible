@@ -4,8 +4,14 @@
     gather_facts: no
 
     tasks:
-      - name: Extract Tomcat zip file
-        win_unzip:
-          src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
-          dest: C:\Users\Administrator\Desktop\Installer
-          remote_src: yes
+    - name: Unzip the file using PowerShell
+      win_shell: |
+        Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force
+      args:
+        executable: powershell.exe
+
+      # - name: Extract Tomcat zip file
+      #   win_unzip:
+      #     src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
+      #     dest: C:\Users\Administrator\Desktop\Installer
+      #     remote_src: yes
