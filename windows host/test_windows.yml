@@ -16,6 +16,8 @@
         dest: C:\Program Files\Apache Tomcat 9.0.85
         force: yes
         recurse: yes
+      become: yes
+      become_user: Administrator
 
       # - name: Extract Tomcat zip file
       #   win_unzip:
