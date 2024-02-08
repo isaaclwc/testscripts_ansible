@@ -13,7 +13,7 @@
 
     - name: Copy tomcat folder to designated path
       win_shell: |
-        Copy-Item -Path C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85" -Destination "C:\Program Files\Apache Tomcat 9.0.85" -Recurse -Force
+        Copy-Item -Path "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85" -Destination "C:\Program Files\Apache Tomcat 9.0.85" -Recurse -Force
       args:
         executable: powershell.exe
 
