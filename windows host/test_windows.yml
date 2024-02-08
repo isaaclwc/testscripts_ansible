@@ -2,6 +2,7 @@
   - name: Test Windows Tasks
     hosts: "{{ hostname }}"
     gather_facts: no
+    become: yes
 
     tasks:
     - name: Unzip the file using PowerShell
