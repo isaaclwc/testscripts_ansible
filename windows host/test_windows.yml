@@ -11,13 +11,17 @@
         executable: powershell.exe
 
     - name: Copy tomcat folder to designated path
-      win_copy:
-        src: 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85'
-        dest: 'C:\Program Files\Apache Tomcat 9.0.85'
-        force: yes
-        recurse: yes
-      become: yes
-      become_user: Administrator
+      win_shell: |
+        Copy-Item -Path C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85" -Destination "C:\Program Files\Apache Tomcat 9.0.85" -Recurse -Force
+      args:
+        executable: powershell.exe
+
+    # - name: Copy tomcat folder to designated path
+    #   win_copy:
+    #     src: 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85'
+    #     dest: 'C:\Program Files\Apache Tomcat 9.0.85'
+    #     force: yes
+    #     recurse: yes
 
       # - name: Extract Tomcat zip file
       #   win_unzip:
