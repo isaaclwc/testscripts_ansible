@@ -17,11 +17,60 @@
       args:
         executable: powershell.exe
 
+    - name: Insert line to catalina.bat
+      win_shell: |
+        $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
+        $content = @"
+        setlocal
+        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+        set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        "@
+        $lines = Get-Content -Path $filePath
+        $index = $lines.IndexOf("setlocal") + 2
+        $lines.Insert($index, $content) | Set-Content -Path $filePath
+
+    - name: Insert line to service.bat
+      win_shell: |
+        $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\service.bat"
+        $content = @"
+        setlocal
+        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+        set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        "@
+        $lines = Get-Content -Path $filePath
+        $index = $lines.IndexOf("setlocal") + 2
+        $lines.Insert($index, $content) | Set-Content -Path $filePath
+
+    - name: Insert line to startup.bat
+      win_shell: |
+        $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\startup.bat"
+        $content = @"
+        setlocal
+        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+        set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        "@
+        $lines = Get-Content -Path $filePath
+        $index = $lines.IndexOf("setlocal") + 2
+        $lines.Insert($index, $content) | Set-Content -Path $filePath
+
+    - name: Insert line to shutdown.bat
+      win_shell: |
+        $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\shutdown.bat"
+        $content = @"
+        setlocal
+        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+        set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        "@
+        $lines = Get-Content -Path $filePath
+        $index = $lines.IndexOf("setlocal") + 2
+        $lines.Insert($index, $content) | Set-Content -Path $filePath
+
     - name: Create file setenv.bat
       win_shell: |
         $content = @"
         set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
         set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        exit /b 0
         "@
         $content | Out-File -FilePath "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\setenv.bat" -Encoding utf8
 
