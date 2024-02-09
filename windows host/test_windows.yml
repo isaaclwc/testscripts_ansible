@@ -75,7 +75,7 @@
     #     $content | Out-File -FilePath "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\setenv.bat" -Encoding utf8
 
     - name: Insert lines to catalina.bat
-      win_command: cmd /c "(type C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat && echo set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251 && echo set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2") | findstr /C:"^setlocal" > C:\path\to\tempfile.txt && move /y C:\path\to\tempfile.txt C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
+      win_command: cmd /c "(type C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat && echo set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251 && echo set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2") | findstr /C:"^setlocal" > C:\Program Files\Apache Tomcat 9.0.85\tempfile.txt && move /y C:\Program Files\Apache Tomcat 9.0.85\tempfile.txt C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
 
     # - name: Insert lines to catalina.bat
     #   win_lineinfile:
