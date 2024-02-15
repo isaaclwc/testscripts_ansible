@@ -100,5 +100,5 @@
       - name: Replace content in a file
         win_shell: |
           $content = Get-Content -Path C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml -Raw
-          $content = $content -replace '8005', '9005'
+          $content = $content -replace <Server port="8005" shutdown="SHUTDOWN">, <Server port="9005" shutdown="SHUTDOWN">
           Set-Content -Path C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml -Value $content
