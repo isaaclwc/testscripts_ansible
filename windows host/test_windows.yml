@@ -134,7 +134,7 @@
 
     - name: Create file setenv.bat
       win_copy:
-        conten: |
+        content: |
           set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
           set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
           exit /b 0
