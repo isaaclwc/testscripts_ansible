@@ -97,9 +97,23 @@
       #       exit /b 0
       #     dest: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\setenv.bat
 
-      - name: Replace content in a file
+      # - name: Replace content in a file (shutdown port)
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $content = Get-Content -Path $filePath -Raw
+      #     $content = $content -replace '<Server port="8005" shutdown="SHUTDOWN">', '<Server port="9005" shutdown="SHUTDOWN">'
+      #     Set-Content -Path $filePath -Value $content
+
+      - name: Replace content in a file (connector port)
         win_shell: |
           $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
           $content = Get-Content -Path $filePath -Raw
-          $content = $content -replace '<Server port="8005" shutdown="SHUTDOWN">', '<Server port="9005" shutdown="SHUTDOWN">'
+          $content = $content -replace '<Connector port="8080" protocol="HTTP/1.1"', '<Connector port="9016" protocol="HTTP/1.1">'
           Set-Content -Path $filePath -Value $content
+
+      # - name: Replace content in a file
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $content = Get-Content -Path $filePath -Raw
+      #     $content = $content -replace '<Server port="8005" shutdown="SHUTDOWN">', '<Server port="9005" shutdown="SHUTDOWN">'
+      #     Set-Content -Path $filePath -Value $content
