@@ -1,14 +1,12 @@
 ---
   - name: Multi Instance Test
-    hosts: "{{ specific_host }}"
+    hosts: "{{ item.hostname }}"
     gather_facts: no
     become: yes
+    vars_files:
+      - variables.yml
 
     tasks:
-      - name: Include variable file
-        include_vars:
-            file: variables.yml
-
       # - name: Check if previous instance is running
       #   ansible.builtin.shell: "systemctl is-active {{ item.service_file }}"
       #   register: prev_instance_status
