@@ -17,45 +17,63 @@
       args:
         executable: powershell.exe
 
-    - name: Insert lines to catalina.bat
-      win_lineinfile:
-        path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat
-        line: "{{ item }}"
-        insertafter: '^setlocal$'
-        state: present
-      loop:
-        - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-        - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+    - name: Run a command using win_shell
+      win_shell: |
+        $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
+        $specificLine = "setlocal"
+        $contentToAdd = @"
+        set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+        set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+        "@
+        $fileContent = Get-Content -Path $filePath
+        $newContent = @()
+        foreach ($line in $fileContent) {
+            $newContent += $line
+            if ($line -eq $specificLine) {
+                $newContent += $contentToAdd
+            }
+        }
+        $newContent | Set-Content -Path $filePath
 
-    - name: Insert lines to service.bat
-      win_lineinfile:
-        path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\service.bat
-        line: "{{ item }}"
-        insertafter: '^setlocal$'
-        state: present
-      loop:
-        - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-        - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+    # - name: Insert lines to catalina.bat
+    #   win_lineinfile:
+    #     path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat
+    #     line: "{{ item }}"
+    #     insertafter: '^setlocal$'
+    #     state: present
+    #   loop:
+    #     - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+    #     - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
 
-    - name: Insert lines to startup.bat
-      win_lineinfile:
-        path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\startup.bat
-        line: "{{ item }}"
-        insertafter: '^setlocal$'
-        state: present
-      loop:
-        - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-        - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+    # - name: Insert lines to service.bat
+    #   win_lineinfile:
+    #     path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\service.bat
+    #     line: "{{ item }}"
+    #     insertafter: '^setlocal$'
+    #     state: present
+    #   loop:
+    #     - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+    #     - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
 
-    - name: Insert lines to shutdown.bat
-      win_lineinfile:
-        path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\shutdown.bat
-        line: "{{ item }}"
-        insertafter: '^setlocal$'
-        state: present
-      loop:
-        - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-        - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+    # - name: Insert lines to startup.bat
+    #   win_lineinfile:
+    #     path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\startup.bat
+    #     line: "{{ item }}"
+    #     insertafter: '^setlocal$'
+    #     state: present
+    #   loop:
+    #     - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+    #     - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+
+    # - name: Insert lines to shutdown.bat
+    #   win_lineinfile:
+    #     path: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\shutdown.bat
+    #     line: "{{ item }}"
+    #     insertafter: '^setlocal$'
+    #     state: present
+    #   loop:
+    #     - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+    #     - set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
 
     # - name: Insert line to catalina.bat
     #   win_shell: |
