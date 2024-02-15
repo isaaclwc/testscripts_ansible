@@ -111,6 +111,11 @@
           $content = $content -replace '<Connector port="8080" protocol="HTTP/1.1"', '<Connector port="9016" protocol="HTTP/1.1">'
           Set-Content -Path $filePath -Value $content
 
+      - name: install Tomcat
+        win_shell: |
+          cd C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin
+          service.bat install Tomcat9.0.85
+
       # - name: Replace content in a file
       #   win_shell: |
       #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
