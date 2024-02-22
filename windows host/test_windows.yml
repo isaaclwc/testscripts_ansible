@@ -165,7 +165,7 @@
       - name: Setup web.xml
         win_shell: |
           $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "<load-on-startup>3</load-on-startup>"
+          $specificLine = "        <load-on-startup>3</load-on-startup>"
           $contentToAdd = @"
                   <init-param>
                       <param-name>mappedfile</param-name>
