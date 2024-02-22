@@ -33,11 +33,16 @@
         debug:
           var: unzip_task
 
-      # - name: Copy unzipped tomcat folder to designated path
-      #   win_shell: |
-      #     Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force
-      #   args:
-      #     executable: powershell.exe
+      - name: Copy unzipped tomcat folder to designated path
+        win_shell: |
+          Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force
+        args:
+          executable: powershell.exe
+        register: copy_task
+
+      - name: Display registered copy_task
+        debug:
+          var: copy_task
 
       # - name: Insert lines to catalina.bat
       #   win_shell: |
