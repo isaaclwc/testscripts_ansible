@@ -41,7 +41,7 @@
 
       # - name: display registered copy_task
       #   debug:
-      #     vars: copy_task
+      #     var: copy_task
 
       # - name: Insert lines to catalina.bat
       #   win_shell: |
