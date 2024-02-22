@@ -174,9 +174,11 @@
           "@
           $fileContent = Get-Content -Path $filePath
           $newContent = @()
+          $found = $false
           foreach ($line in $fileContent) {
-              if ($line -eq $specificLine) {
+              if ($line -eq $specificLine -and !$found) {
                   $newContent += $contentToAdd
+                  $found = $true
               }
               $newContent += $line
           }
