@@ -24,7 +24,7 @@
     tasks:
       - name: Unzip the file using PowerShell
         win_shell: |
-          Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force
+          Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force -Verbose
         args:
           executable: powershell.exe
         register: unzip_task
@@ -35,7 +35,7 @@
 
       - name: Copy unzipped tomcat folder to designated path
         win_shell: |
-          Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force
+          Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
         args:
           executable: powershell.exe
         register: copy_task
