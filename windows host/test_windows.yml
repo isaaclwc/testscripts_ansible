@@ -174,15 +174,25 @@
           "@
           $fileContent = Get-Content -Path $filePath
           $newContent = @()
-          $found = $false
           foreach ($line in $fileContent) {
-              if ($line -eq $specificLine -and !$found) {
+              if ($line -eq $specificLine) {
                   $newContent += $contentToAdd
-                  $found = $true
               }
               $newContent += $line
           }
           $newContent | Set-Content -Path $filePath
+
+#          $fileContent = Get-Content -Path $filePath
+#          $newContent = @()
+#          $found = $false
+#          foreach ($line in $fileContent) {
+#              if ($line -eq $specificLine -and !$found) {
+#                  $newContent += $contentToAdd
+#                  $found = $true
+#              }
+#              $newContent += $line
+#          }
+#          $newContent | Set-Content -Path $filePath
 
       # - name: install Tomcat
       #   win_shell: |
