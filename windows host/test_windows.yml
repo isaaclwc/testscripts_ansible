@@ -184,10 +184,10 @@
           }
           $newContent | Set-Content -Path $filePath
 
-      - name: install Tomcat
-        win_shell: |
-          cd C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin
-          service.bat install Tomcat9.0.85
+      # - name: install Tomcat
+      #   win_shell: |
+      #     cd C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin
+      #     service.bat install Tomcat9.0.85
 
       # - name: Replace content in a file
       #   win_shell: |
