@@ -131,9 +131,9 @@
       - name: Tuning server.xml
         win_shell: |
           $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "  <Service name=\"Catalina\">"
+          $specificLine = "  <Service name='"Catalina'">"
           $contentToAdd = @"
-          <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
+              <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
           "@
           $fileContent = Get-Content -Path $filePath
           $newContent = @()
