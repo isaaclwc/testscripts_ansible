@@ -114,7 +114,7 @@
       - name: Define AJP Port
         win_shell: |
           $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "<!-- Define an AJP 1.3 Connector on port 8009 -->"
+          $specificLine = "    <!-- Define an AJP 1.3 Connector on port 8009 -->"
           $contentToAdd = @"
           <Connector address="192.168.162.18" port="9017" protocol="AJP/1.3" redirectPort="8443" proxyName="192.168.167.48" proxyPort="443" secretRequired="false" />
           "@
@@ -128,22 +128,22 @@
           }
           $newContent | Set-Content -Path $filePath
 
-      - name: Tuning server.xml
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "<Service name="Catalina">"
-          $contentToAdd = @"
-          <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Tuning server.xml
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $specificLine = "  <Service name="Catalina">"
+      #     $contentToAdd = @"
+      #     <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
       - name: Hardening server.xml
         win_shell: |
