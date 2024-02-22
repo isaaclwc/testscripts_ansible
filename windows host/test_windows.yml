@@ -22,22 +22,16 @@
 
 
     tasks:
-      - name: Extract Tomcat zip file
-        win_unzip:
-          src: '{{ installer_path }}'
-          dest: '{{ unzipped_dest }}'
-          remote_src: yes
+      - name: Unzip the file using PowerShell
+        win_shell: |
+          Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force
+        args:
+          executable: powershell.exe
         register: unzip_task
 
       - name: Display registered unzip_task
         debug:
           var: unzip_task
-
-      # - name: Unzip the file using PowerShell
-      #   win_shell: |
-      #     Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force
-      #   args:
-      #     executable: powershell.exe
 
       # - name: Copy unzipped tomcat folder to designated path
       #   win_shell: |
