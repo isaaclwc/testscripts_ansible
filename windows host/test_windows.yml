@@ -111,29 +111,12 @@
       #     $content = $content -replace '<Connector port="8080" protocol="HTTP/1.1"', '<Connector address="192.168.162.18" port="9016" protocol="HTTP/1.1">'
       #     Set-Content -Path $filePath -Value $content
 
-      - name: Define AJP Port
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "    <!-- Define an AJP 1.3 Connector on port 8009 -->"
-          $contentToAdd = @"
-              <Connector address="192.168.162.18" port="9017" protocol="AJP/1.3" redirectPort="8443" proxyName="192.168.167.48" proxyPort="443" secretRequired="false" />
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
-
-      # - name: Tuning server.xml
+      # - name: Define AJP Port
       #   win_shell: |
       #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-      #     $specificLine = "  <Service name="Catalina">"
+      #     $specificLine = "    <!-- Define an AJP 1.3 Connector on port 8009 -->"
       #     $contentToAdd = @"
-      #     <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
+      #         <Connector address="192.168.162.18" port="9017" protocol="AJP/1.3" redirectPort="8443" proxyName="192.168.167.48" proxyPort="443" secretRequired="false" />
       #     "@
       #     $fileContent = Get-Content -Path $filePath
       #     $newContent = @()
@@ -145,12 +128,12 @@
       #     }
       #     $newContent | Set-Content -Path $filePath
 
-      - name: Hardening server.xml
+      - name: Tuning server.xml
         win_shell: |
           $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "            unpackWARs="true" autoDeploy="true">"
+          $specificLine = "  <Service name=\"Catalina\">"
           $contentToAdd = @"
-                  <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
+          <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
           "@
           $fileContent = Get-Content -Path $filePath
           $newContent = @()
@@ -162,27 +145,44 @@
           }
           $newContent | Set-Content -Path $filePath
 
-      - name: Setup web.xml
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "<load-on-startup>3</load-on-startup>"
-          $contentToAdd = @"
-                  <init-param>
-                      <param-name>mappedfile</param-name>
-                      <param-value>false</param-value>
-                  </init-param>
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          $found = $false
-          foreach ($line in $fileContent) {
-              if ($line -eq $specificLine -and !$found) {
-                  $newContent += $contentToAdd
-                  $found = $true
-              }
-              $newContent += $line
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Hardening server.xml
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $specificLine = "            unpackWARs="true" autoDeploy="true">"
+      #     $contentToAdd = @"
+      #             <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
+
+      # - name: Setup web.xml
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $specificLine = "<load-on-startup>3</load-on-startup>"
+      #     $contentToAdd = @"
+      #             <init-param>
+      #                 <param-name>mappedfile</param-name>
+      #                 <param-value>false</param-value>
+      #             </init-param>
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     $found = $false
+      #     foreach ($line in $fileContent) {
+      #         if ($line -eq $specificLine -and !$found) {
+      #             $newContent += $contentToAdd
+      #             $found = $true
+      #         }
+      #         $newContent += $line
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
       # - name: install Tomcat
       #   win_shell: |
