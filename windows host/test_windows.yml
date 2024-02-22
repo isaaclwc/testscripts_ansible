@@ -5,111 +5,111 @@
     become: yes
 
     tasks:
-      - name: Unzip the file using PowerShell
-        win_shell: |
-          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force
-        args:
-          executable: powershell.exe
+      # - name: Unzip the file using PowerShell
+      #   win_shell: |
+      #     Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force
+      #   args:
+      #     executable: powershell.exe
 
-      - name: Copy tomcat folder to designated path
-        win_shell: |
-          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85\' -Destination 'C:\Program Files\Apache Tomcat 9.0.85\' -Recurse -Force
-        args:
-          executable: powershell.exe
+      # - name: Copy tomcat folder to designated path
+      #   win_shell: |
+      #     Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85\' -Destination 'C:\Program Files\Apache Tomcat 9.0.85\' -Recurse -Force
+      #   args:
+      #     executable: powershell.exe
 
-      - name: Insert lines to catalina.bat
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
-          $specificLine = "setlocal"
-          $contentToAdd = @"
-          set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-          set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Insert lines to catalina.bat
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\catalina.bat"
+      #     $specificLine = "setlocal"
+      #     $contentToAdd = @"
+      #     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+      #     set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
-      - name: Insert lines to service.bat
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\service.bat"
-          $specificLine = "setlocal"
-          $contentToAdd = @"
-          set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-          set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Insert lines to service.bat
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\service.bat"
+      #     $specificLine = "setlocal"
+      #     $contentToAdd = @"
+      #     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+      #     set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
-      - name: Insert lines to startup.bat
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\startup.bat"
-          $specificLine = "setlocal"
-          $contentToAdd = @"
-          set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-          set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Insert lines to startup.bat
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\startup.bat"
+      #     $specificLine = "setlocal"
+      #     $contentToAdd = @"
+      #     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+      #     set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
-      - name: Insert lines to shutdown.bat
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\shutdown.bat"
-          $specificLine = "setlocal"
-          $contentToAdd = @"
-          set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-          set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Insert lines to shutdown.bat
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\shutdown.bat"
+      #     $specificLine = "setlocal"
+      #     $contentToAdd = @"
+      #     set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+      #     set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
-      - name: Create file setenv.bat
-        win_copy:
-          content: |
-            set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-            set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
-            exit /b 0
-          dest: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\setenv.bat
+      # - name: Create file setenv.bat
+      #   win_copy:
+      #     content: |
+      #       set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+      #       set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
+      #       exit /b 0
+      #     dest: C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\bin\setenv.bat
 
-      - name: Replace content in a file (shutdown port)
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $content = Get-Content -Path $filePath -Raw
-          $content = $content -replace '<Server port="8005" shutdown="SHUTDOWN">', '<Server port="9005" shutdown="SHUTDOWN">'
-          Set-Content -Path $filePath -Value $content
+      # - name: Replace content in a file (shutdown port)
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $content = Get-Content -Path $filePath -Raw
+      #     $content = $content -replace '<Server port="8005" shutdown="SHUTDOWN">', '<Server port="9005" shutdown="SHUTDOWN">'
+      #     Set-Content -Path $filePath -Value $content
 
-      - name: Replace content in a file (connector port)
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $content = Get-Content -Path $filePath -Raw
-          $content = $content -replace '<Connector port="8080" protocol="HTTP/1.1"', '<Connector address="192.168.162.18" port="9016" protocol="HTTP/1.1">'
-          Set-Content -Path $filePath -Value $content
+      # - name: Replace content in a file (connector port)
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $content = Get-Content -Path $filePath -Raw
+      #     $content = $content -replace '<Connector port="8080" protocol="HTTP/1.1"', '<Connector address="192.168.162.18" port="9016" protocol="HTTP/1.1">'
+      #     Set-Content -Path $filePath -Value $content
 
       - name: Define AJP Port
         win_shell: |
