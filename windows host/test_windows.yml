@@ -24,8 +24,8 @@
     tasks:
       - name: Extract Tomcat zip file
         win_unzip:
-          src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
-          dest: C:\Users\Administrator\Desktop\Installer
+          src: '{{ installer_path }}'
+          dest: '{{ unzipped_dest }}'
           remote_src: yes
         register: unzip_task
 
