@@ -128,39 +128,39 @@
       #     }
       #     $newContent | Set-Content -Path $filePath
 
-      - name: Tuning server.xml
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = '  <Service name="Catalina">'
-          $contentToAdd = @"
-              <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Tuning server.xml
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $specificLine = '  <Service name="Catalina">'
+      #     $contentToAdd = @"
+      #         <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"maxThreads="2000" minSpareThreads="20" maxSpareThreads="30"/>
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
-      - name: Hardening server.xml
-        win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = '            unpackWARs="true" autoDeploy="true">'
-          $contentToAdd = @"
-                  <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              $newContent += $line
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-          }
-          $newContent | Set-Content -Path $filePath
+      # - name: Hardening server.xml
+      #   win_shell: |
+      #     $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
+      #     $specificLine = '            unpackWARs="true" autoDeploy="true">'
+      #     $contentToAdd = @"
+      #             <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
+      #     "@
+      #     $fileContent = Get-Content -Path $filePath
+      #     $newContent = @()
+      #     foreach ($line in $fileContent) {
+      #         $newContent += $line
+      #         if ($line -eq $specificLine) {
+      #             $newContent += $contentToAdd
+      #         }
+      #     }
+      #     $newContent | Set-Content -Path $filePath
 
       - name: Setup web.xml
         win_shell: |
@@ -174,11 +174,9 @@
           "@
           $fileContent = Get-Content -Path $filePath
           $newContent = @()
-          $found = $false
           foreach ($line in $fileContent) {
-              if ($line -eq $specificLine -and !$found) {
+              if ($line -eq $specificLine) {
                   $newContent += $contentToAdd
-                  $found = $true
               }
               $newContent += $line
           }
