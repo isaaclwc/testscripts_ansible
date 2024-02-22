@@ -164,23 +164,23 @@
 
       - name: Setup web.xml
         win_shell: |
-          $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\server.xml"
-          $specificLine = "        <load-on-startup>3</load-on-startup>"
-          $contentToAdd = @"
-                  <init-param>
-                      <param-name>mappedfile</param-name>
-                      <param-value>false</param-value>
-                  </init-param>
-          "@
-          $fileContent = Get-Content -Path $filePath
-          $newContent = @()
-          foreach ($line in $fileContent) {
-              if ($line -eq $specificLine) {
-                  $newContent += $contentToAdd
-              }
-              $newContent += $line
-          }
-          $newContent | Set-Content -Path $filePath
+         $filePath = "C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85\conf\web.xml"
+         $specificLine = "        <load-on-startup>3</load-on-startup>"
+         $contentToAdd = @"
+                 <init-param>
+                     <param-name>mappedfile</param-name>
+                     <param-value>false</param-value>
+                 </init-param>
+         "@
+         $fileContent = Get-Content -Path $filePath
+         $newContent = @()
+         foreach ($line in $fileContent) {
+             if ($line -eq $specificLine) {
+                 $newContent += $contentToAdd
+             }
+             $newContent += $line
+         }
+         $newContent | Set-Content -Path $filePath
 
 #          $fileContent = Get-Content -Path $filePath
 #          $newContent = @()
