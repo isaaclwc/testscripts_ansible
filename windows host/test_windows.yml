@@ -30,7 +30,7 @@
 
       - name: display registered unzip_task
         debug:
-          vars: unzip_task
+          var: unzip_task
 
       # - name: Copy unzipped tomcat folder to designated path
       #   win_shell: |
