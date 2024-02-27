@@ -1,0 +1,26 @@
+---
+  - name: Upgrade Tomcat Windows Host
+    hosts: "{{ hostname }}"
+    gather_facts: no
+    become: yes
+
+    tasks:
+      - name: Extract Tomcat zip file
+        win_unzip:
+          src: '{{ installer_path }}'
+          dest: '{{ unzipped_dest }}'
+          remote_src: yes
+        register: unzip_task
+
+      - name: Copy tomcat folder to designated path
+        win_copy:
+          src: '{{ unzipped_installer_path }}'
+          dest: '{{ copied_dest }}'
+          force: yes
+          recurse: yes
+        register: copy_task
+
+      - name: install Tomcat
+        win_shell: |
+          cd {{ actual_dest }}\bin
+          service.bat install {{ app_name }}

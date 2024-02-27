@@ -12,14 +12,12 @@
     # rem_java_home_a  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_201
     # rem_java_home_b  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144
     # set_java_home  set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-    # shutdown_port
+    # shutdown_port  
     # http_address
     # http_port
     # ajp_address
     # ajp_port
     # ajp_proxyname
-
-
 
     tasks:
       - name: Unzip the file using PowerShell
