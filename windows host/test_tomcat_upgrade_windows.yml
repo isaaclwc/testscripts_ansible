@@ -4,7 +4,7 @@
     gather_facts: no
     become: yes
 
-    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
+    # tomcat_zip  apache-tomcat-9.0.85
     # unzipped_dest  C:\Users\Administrator\Desktop\Installer
     # unzipped_installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85\
     # copied_dest  C:\Program Files\Apache Tomcat 9.0.85\
@@ -22,18 +22,42 @@
     tasks:
       - name: Unzip the file using PowerShell
         win_shell: |
-          Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force -Verbose
+          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\{{ tomcat_version }}.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
         args:
           executable: powershell.exe
 
       - name: Copy unzipped tomcat folder to designated path
         win_shell: |
-          Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
+          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\{{ tomcat_version }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
         args:
           executable: powershell.exe
 
       - name: Delete .sh files from unzipped tomcat version
         win_shell: |
-          Get-ChildItem -Path '{{ actual_dest }}' -Include catalina.bat,service.bat -File | Remove-Item -Force
+          Get-ChildItem -Path '{{ actual_dest }}\bin\' -Include "catalina.bat","service.bat","startup.bat","shutdown.bat","setenv.bat" -File | Remove-Item -Force
+        args:
+          executable: powershell.exe
+
+      - name: Delete server.xml from unzipped tomcat version
+        win_shell: |
+          Get-ChildItem -Path '{{ actual_dest }}\conf\' -Include "server.xml" -File | Remove-Item -Force
+        args:
+          executable: powershell.exe
+
+      - name: Archive existing Tomcat folder
+        win_shell: |
+           Compress-Archive -Path C:\Program Files\{{ existing_tomcat_folder }}\ -DestinationPath C:\Program Files\{{ existing_tomcat_folder }}.zip
+        args:
+          executable: powershell.exe
+
+      - name: Archive existing Tomcat folder
+        win_shell: |
+           Compress-Archive -Path C:\Program Files\{{ existing_tomcat_folder }}\ -DestinationPath C:\Program Files\{{ existing_tomcat_folder }}.zip
+        args:
+          executable: powershell.exe
+
+      - name: Copy files from existing tomcat folder
+        win_shell: |
+           Copy-Item -Path "C:\Program Files\{{ existing_tomcat_folder }}" -Destination "C:\Logs" -Include "*.log"
         args:
           executable: powershell.exe
