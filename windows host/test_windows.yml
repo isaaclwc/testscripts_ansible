@@ -120,7 +120,7 @@
             set JAVA_HOME={{ set_java_home }}
             set JAVA_OPTS="-Dhttps.protocols=TLSv1.1,TLSv1.2"
             exit /b 0
-          dest: "{{ actual_dest }}"\bin\setenv.bat
+          dest: '{{ actual_dest }}\bin\setenv.bat'
 
       - name: Replace content in a file (shutdown port)
         win_shell: |
