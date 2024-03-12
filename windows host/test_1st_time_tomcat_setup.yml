@@ -4,20 +4,20 @@
     gather_facts: no
     become: yes
 
-    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
+    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.73.zip
     # unzipped_dest  C:\Users\Administrator\Desktop\Installer
-    # unzipped_installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85\
-    # copied_dest  C:\Program Files\Apache Tomcat 9.0.85\
-    # actual_dest  C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85
+    # unzipped_installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.73\
+    # copied_dest  C:\Program Files\Apache Tomcat 9.0.73\
+    # actual_dest  C:\Program Files\Apache Tomcat 9.0.73\apache-tomcat-9.0.73
     # rem_java_home_a  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_201
     # rem_java_home_b  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144
     # set_java_home  set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
-    # shutdown_port  
-    # http_address
-    # http_port
-    # ajp_address
-    # ajp_port
-    # ajp_proxyname
+    # shutdown_port 9005
+    # http_address 192.168.0.126
+    # http_port 9016
+    # ajp_address 192.168.0.126
+    # ajp_port 9017
+    # ajp_proxyname 192.168.0.126
 
     tasks:
       - name: Unzip the file using PowerShell
@@ -207,7 +207,7 @@
          }
          $newContent | Set-Content -Path $filePath
 
-      - name: install Tomcat
-        win_shell: |
-          cd {{ actual_dest }}\bin
-          service.bat install Tomcat9.0.85
+      # - name: install Tomcat
+      #   win_shell: |
+      #     cd {{ actual_dest }}\bin
+      #     service.bat install Tomcat9.0.85

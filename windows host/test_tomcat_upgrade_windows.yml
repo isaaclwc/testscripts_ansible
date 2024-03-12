@@ -1,0 +1,39 @@
+---
+  - name: Upgrade Tomcat Windows Host
+    hosts: "{{ hostname }}"
+    gather_facts: no
+    become: yes
+
+    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip
+    # unzipped_dest  C:\Users\Administrator\Desktop\Installer
+    # unzipped_installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85\
+    # copied_dest  C:\Program Files\Apache Tomcat 9.0.85\
+    # actual_dest  C:\Program Files\Apache Tomcat 9.0.85\apache-tomcat-9.0.85
+    # rem_java_home_a  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_201
+    # rem_java_home_b  rem set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144
+    # set_java_home  set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_251
+    # shutdown_port  
+    # http_address
+    # http_port
+    # ajp_address
+    # ajp_port
+    # ajp_proxyname
+
+    tasks:
+      - name: Unzip the file using PowerShell
+        win_shell: |
+          Expand-Archive -Path '{{ installer_path }}' -DestinationPath '{{ unzipped_dest }}' -Force -Verbose
+        args:
+          executable: powershell.exe
+
+      - name: Copy unzipped tomcat folder to designated path
+        win_shell: |
+          Copy-Item -Path '{{ unzipped_installer_path }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
+        args:
+          executable: powershell.exe
+
+      - name: Delete .sh files from unzipped tomcat version
+        win_shell: |
+          Get-ChildItem -Path '{{ actual_dest }}' -Include catalina.bat,service.bat -File | Remove-Item -Force
+        args:
+          executable: powershell.exe
