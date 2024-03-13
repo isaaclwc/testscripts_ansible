@@ -40,7 +40,7 @@
 
       - name: Delete .sh files from unzipped tomcat version
         win_shell: |
-          Remove-Item -Path "C:\Program Files\apache-tomcat-9.0.85\bin\catalina.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\service.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\startup.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\shutdown.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\setenv.bat" -Force
+          Remove-Item -Path "C:\Program Files\apache-tomcat-9.0.85\bin" -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat -Force
         args:
           executable: powershell.exe
 
@@ -68,3 +68,4 @@
       #     service.bat install Tomcat9.0.85
 
       # Get-ChildItem -Path 'C:\Program Files\apache-tomcat-9.0.85\bin\' -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat -File | Remove-Item -Force
+      # Remove-Item -Path "C:\Program Files\apache-tomcat-9.0.85\bin\catalina.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\service.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\startup.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\shutdown.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\setenv.bat" -Force
