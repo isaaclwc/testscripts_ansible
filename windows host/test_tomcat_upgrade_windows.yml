@@ -34,7 +34,7 @@
 
       - name: Copy unzipped tomcat folder to designated path
         win_shell: |
-          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\{{ tomcat_version }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
+          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85' -Destination 'C:\Program Files' -Recurse -Force -Verbose
         args:
           executable: powershell.exe
 
