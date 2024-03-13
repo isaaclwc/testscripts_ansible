@@ -40,13 +40,13 @@
 
       - name: Delete .sh files from unzipped tomcat version
         win_shell: |
-          Remove-Item "C:\Program Files\apache-tomcat-9.0.85\bin" -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat -Force
+          Remove-Item 'C:\Program Files\apache-tomcat-9.0.85\bin' -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat -Force
         args:
           executable: powershell.exe
 
       - name: Delete server.xml from unzipped tomcat version
         win_shell: |
-          Remove-Item "C:\Program Files\apache-tomcat-9.0.85\conf\server.xml" -Force
+          Remove-Item 'C:\Program Files\apache-tomcat-9.0.85\conf\server.xml' -Force
         args:
           executable: powershell.exe
 
