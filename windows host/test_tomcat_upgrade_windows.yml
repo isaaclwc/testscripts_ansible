@@ -50,12 +50,6 @@
         args:
           executable: powershell.exe
 
-      - name: Archive existing Tomcat folder
-        win_shell: |
-           Compress-Archive -Path C:\Program Files\{{ existing_tomcat_folder }}\ -DestinationPath C:\Program Files\{{ existing_tomcat_folder }}.zip
-        args:
-          executable: powershell.exe
-
       - name: Copy files from existing tomcat folder
         win_shell: |
            Copy-Item -Path "C:\Program Files\{{ existing_tomcat_folder }}" -Destination "C:\Logs" -Include "*.log"
