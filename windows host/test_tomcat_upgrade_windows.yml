@@ -32,23 +32,23 @@
       #   args:
       #     executable: powershell.exe
 
-      - name: Copy unzipped tomcat folder to designated path
+      # - name: Copy unzipped tomcat folder to designated path
+      #   win_shell: |
+      #     Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85' -Destination 'C:\Program Files' -Recurse -Force -Verbose
+      #   args:
+      #     executable: powershell.exe
+
+      - name: Delete .sh files from unzipped tomcat version
         win_shell: |
-          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85' -Destination 'C:\Program Files' -Recurse -Force -Verbose
+          Get-ChildItem -Path 'C:\Program Files\apache-tomcat-9.0.85\bin\' -Include "catalina.bat","service.bat","startup.bat","shutdown.bat","setenv.bat" -File | Remove-Item -Force
         args:
           executable: powershell.exe
 
-      # - name: Delete .sh files from unzipped tomcat version
-      #   win_shell: |
-      #     Get-ChildItem -Path '{{ actual_dest }}\bin\' -Include "catalina.bat","service.bat","startup.bat","shutdown.bat","setenv.bat" -File | Remove-Item -Force
-      #   args:
-      #     executable: powershell.exe
-
-      # - name: Delete server.xml from unzipped tomcat version
-      #   win_shell: |
-      #     Get-ChildItem -Path '{{ actual_dest }}\conf\' -Include "server.xml" -File | Remove-Item -Force
-      #   args:
-      #     executable: powershell.exe
+      - name: Delete server.xml from unzipped tomcat version
+        win_shell: |
+          Get-ChildItem -Path 'C:\Program Files\apache-tomcat-9.0.85\conf\' -Include "server.xml" -File | Remove-Item -Force
+        args:
+          executable: powershell.exe
 
       # - name: Copy .sh file from existing tomcat folder
       #   win_shell: |
