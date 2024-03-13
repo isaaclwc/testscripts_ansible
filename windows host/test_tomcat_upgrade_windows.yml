@@ -52,13 +52,13 @@
 
       - name: Copy .sh file from existing tomcat folder
         win_shell: |
-           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\bin' -Destination 'C:\Program Files\apache-tomcat-9.0.85\bin' -Include "catalina.bat","service.bat","startup.bat","shutdown.bat","setenv.bat"
+           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\bin' -Destination 'C:\Program Files\apache-tomcat-9.0.85\bin' -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat
         args:
           executable: powershell.exe
 
       - name: Copy server.xml from existing tomcat folder
         win_shell: |
-           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\conf' -Destination 'C:\Program Files\apache-tomcat-9.0.85\conf' -Include "server.xml"
+           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\conf' -Destination 'C:\Program Files\apache-tomcat-9.0.85\conf' -Include server.xml
         args:
           executable: powershell.exe
 
