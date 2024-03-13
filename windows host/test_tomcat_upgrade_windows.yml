@@ -20,23 +20,23 @@
     # ajp_proxyname
 
     tasks:
-      - name: Archive existing Tomcat folder
-        win_shell: |
-           Compress-Archive -Path 'C:\Program Files\Apache Tomcat 9.0.73' -DestinationPath 'C:\Program Files\Apache Tomcat 9.0.73.zip'
-        args:
-          executable: powershell.exe
-
-      - name: Unzip the file using PowerShell
-        win_shell: |
-          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
-        args:
-          executable: powershell.exe
-
-      # - name: Copy unzipped tomcat folder to designated path
+      # - name: Archive existing Tomcat folder
       #   win_shell: |
-      #     Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\{{ tomcat_version }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
+      #      Compress-Archive -Path 'C:\Program Files\Apache Tomcat 9.0.73' -DestinationPath 'C:\Program Files\Apache Tomcat 9.0.73.zip'
       #   args:
       #     executable: powershell.exe
+
+      # - name: Unzip the file using PowerShell
+      #   win_shell: |
+      #     Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
+      #   args:
+      #     executable: powershell.exe
+
+      - name: Copy unzipped tomcat folder to designated path
+        win_shell: |
+          Copy-Item -Path 'C:\Users\Administrator\Desktop\Installer\{{ tomcat_version }}' -Destination '{{ copied_dest }}' -Recurse -Force -Verbose
+        args:
+          executable: powershell.exe
 
       # - name: Delete .sh files from unzipped tomcat version
       #   win_shell: |
