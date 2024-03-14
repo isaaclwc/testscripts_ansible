@@ -111,7 +111,7 @@
         register: change_ownership
 
       - name: Change service file name following the standard naming convention
-        command: "mv /etc/systemd/system/{{ existing_tomcat_service }} /etc/systemd/system/{{ new_tomcat_service}}"
+        command: "mv /etc/systemd/system/{{ existing_tomcat_service }}.service /etc/systemd/system/{{ new_tomcat_service}}.service"
         register: new_tomcat_service_name
 
       - name: Stop existing tomcat service
