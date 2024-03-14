@@ -5,7 +5,7 @@
     gather_facts: no
     become: yes
 
-    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.73.zip
+    # installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.73-windows-x64.zip
     # unzipped_dest  C:\Users\Administrator\Desktop\Installer
     # unzipped_installer_path  C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.73\
     # copied_dest  C:\Program Files\Apache Tomcat 9.0.73\
