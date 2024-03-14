@@ -117,7 +117,7 @@
       - name: Stop existing tomcat service
         systemd_service:
           state: stopped
-          name: "{{ existing_tomcat_service }}"
+          name: "{{ new_tomcat_service }}"
           enabled: false
         become: yes
         become_user: root
@@ -126,7 +126,7 @@
         register: stop_tomcat
 
       - name: Existing tomcat status check
-        command: "systemctl status {{ existing_tomcat_service }}.service"
+        command: "systemctl status {{ new_tomcat_service }}.service"
         register: existing_tomcat_status
         ignore_errors: yes
 
@@ -137,7 +137,7 @@
       - name: Start updated tomcat service
         systemd_service:
           state: started
-          name: "{{ existing_tomcat_service }}"
+          name: "{{ new_tomcat_service }}"
           enabled: true
         become: yes
         become_user: root
@@ -146,7 +146,7 @@
         register: start_tomcat
 
       - name: Status check on the updated tomcat service
-        command: "systemctl status {{ existing_tomcat_service }}.service"
+        command: "systemctl status {{ new_tomcat_service }}.service"
         become: yes
         register: upgraded_tomcat_status_check
         
