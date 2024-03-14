@@ -111,15 +111,21 @@
       #   register: change_ownership
 
       - name: Stop existing tomcat service
-        systemd_service:
-          state: stopped
-          name: "{{ existing_tomcat_service }}"
-          enabled: false
+        command: "systemctl stop {{ existing_tomcat_service }}.service"
         become: yes
         become_user: root
-        async: 100
-        poll: 5
         register: stop_tomcat
+
+      # - name: Stop existing tomcat service
+      #   systemd_service:
+      #     state: stopped
+      #     name: "{{ existing_tomcat_service }}"
+      #     enabled: false
+      #   become: yes
+      #   become_user: root
+      #   async: 100
+      #   poll: 5
+      #   register: stop_tomcat
 
       - name: Existing tomcat status check
         command: "systemctl status {{ existing_tomcat_service }}.service"
@@ -143,15 +149,21 @@
         become_user: root
 
       - name: Start updated tomcat service
-        systemd_service:
-          state: started
-          name: "{{ new_tomcat_service }}"
-          enabled: true
+        command: "systemctl start {{ new_tomcat_service }}.service"
         become: yes
         become_user: root
-        async: 100
-        poll: 5
         register: start_tomcat
+
+      # - name: Start updated tomcat service
+      #   systemd_service:
+      #     state: started
+      #     name: "{{ new_tomcat_service }}"
+      #     enabled: true
+      #   become: yes
+      #   become_user: root
+      #   async: 100
+      #   poll: 5
+      #   register: start_tomcat
 
       - name: Status check on the updated tomcat service
         command: "systemctl status {{ new_tomcat_service }}.service"
