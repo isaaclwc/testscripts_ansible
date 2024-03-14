@@ -110,6 +110,26 @@
         become_user: root
         register: change_ownership
 
+      - name: Stop existing tomcat service
+        systemd_service:
+          state: stopped
+          name: "{{ existing_tomcat_service }}"
+          enabled: false
+        become: yes
+        become_user: root
+        async: 100
+        poll: 5
+        register: stop_tomcat
+
+      - name: Existing tomcat status check
+        command: "systemctl status {{ existing_tomcat_service }}.service"
+        register: existing_tomcat_status
+        ignore_errors: yes
+
+      - name: Display existing tomcat status check
+        debug:
+          var: existing_tomcat_status
+
       - name: Change service file name following the standard naming convention
         command: "mv /etc/systemd/system/{{ existing_tomcat_service }}.service /etc/systemd/system/{{ new_tomcat_service}}.service"
         register: new_tomcat_service_name
@@ -121,26 +141,6 @@
         register: daemon_reload
         become: yes
         become_user: root
-
-      - name: Stop existing tomcat service
-        systemd_service:
-          state: stopped
-          name: "{{ new_tomcat_service }}"
-          enabled: false
-        become: yes
-        become_user: root
-        async: 100
-        poll: 5
-        register: stop_tomcat
-
-      - name: Existing tomcat status check
-        command: "systemctl status {{ new_tomcat_service }}.service"
-        register: existing_tomcat_status
-        ignore_errors: yes
-
-      - name: Display existing tomcat status check
-        debug:
-          var: existing_tomcat_status
 
       - name: Start updated tomcat service
         systemd_service:
