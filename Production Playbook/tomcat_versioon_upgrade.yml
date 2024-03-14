@@ -114,6 +114,8 @@
         command: "systemctl stop {{ existing_tomcat_service }}.service"
         become: yes
         become_user: root
+        async: 100
+        poll: 5
         register: stop_tomcat
 
       # - name: Stop existing tomcat service
@@ -152,6 +154,8 @@
         command: "systemctl start {{ new_tomcat_service }}.service"
         become: yes
         become_user: root
+        async: 100
+        poll: 5
         register: start_tomcat
 
       # - name: Start updated tomcat service
