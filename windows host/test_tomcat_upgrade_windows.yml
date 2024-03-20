@@ -40,7 +40,7 @@
 
       - name: Delete .sh files from unzipped tomcat version
         win_shell: |
-          Remove-Item 'C:\Program Files\apache-tomcat-9.0.85\bin\catalina.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\service.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\startup.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\shutdown.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\setenv.bat' -Force
+          Remove-Item 'C:\Program Files\apache-tomcat-9.0.85\bin\catalina.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\service.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\startup.bat', 'C:\Program Files\apache-tomcat-9.0.85\bin\shutdown.bat' -Force
         args:
           executable: powershell.exe
 
@@ -50,13 +50,25 @@
         args:
           executable: powershell.exe
 
+      - name: Delete webapps folder contents from unzipped tomcat version
+        win_shell: |
+          Remove-Item 'C:\Program Files\apache-tomcat-9.0.85\webapp' -Force
+        args:
+          executable: powershell.exe
+
       - name: Copy .sh file from existing tomcat folder
         win_shell: |
-           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\bin\catalina.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\service.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\startup.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\shutdown.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\setenv.bat' -Destination 'C:\Program Files\apache-tomcat-9.0.85\bin'
+           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\bin\catalina.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\service.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\startup.bat','C:\Program Files\Apache Tomcat 9.0.73\bin\shutdown.bat' -Destination 'C:\Program Files\apache-tomcat-9.0.85\bin'
         args:
           executable: powershell.exe
 
       - name: Copy server.xml from existing tomcat folder
+        win_shell: |
+           Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\conf\server.xml' -Destination 'C:\Program Files\apache-tomcat-9.0.85\conf'
+        args:
+          executable: powershell.exe
+
+      - name: Copy webapps folder contents from existing tomcat folder
         win_shell: |
            Copy-Item -Path 'C:\Program Files\Apache Tomcat 9.0.73\conf\server.xml' -Destination 'C:\Program Files\apache-tomcat-9.0.85\conf'
         args:
