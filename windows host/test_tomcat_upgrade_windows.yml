@@ -74,10 +74,10 @@
         args:
           executable: powershell.exe
 
-      - name: install Tomcat
-        win_shell: |
-          cd {{ actual_dest }}\bin
-          service.bat install Tomcat9.0.85
+      # - name: install Tomcat
+      #   win_shell: |
+      #     cd {{ actual_dest }}\bin
+      #     service.bat install Tomcat9.0.85
 
       # Get-ChildItem -Path 'C:\Program Files\apache-tomcat-9.0.85\bin\' -Include catalina.bat,service.bat,startup.bat,shutdown.bat,setenv.bat -File | Remove-Item -Force
       # Remove-Item -Path "C:\Program Files\apache-tomcat-9.0.85\bin\catalina.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\service.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\startup.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\shutdown.bat", "C:\Program Files\apache-tomcat-9.0.85\bin\setenv.bat" -Force

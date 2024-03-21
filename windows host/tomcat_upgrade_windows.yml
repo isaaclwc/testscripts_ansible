@@ -26,12 +26,12 @@
           state: archive
           dest: D:\Backup\Tomcat9.0.73_BPG_CIMBMY.zip
 
-      # - name: Unzip Tomcat zip file
-      #   win_unzip:
-      #     src: "{{ tomcat_zip_file }}"
-      #     dest: "{{ unzipped_dest }}"
-      #     delete_archive: true
-      #   register: unzipped_tomcat_file
+      - name: Unzip Tomcat zip file
+        win_unzip:
+          src: "{{ tomcat_zip_file }}"
+          dest: "{{ unzipped_dest }}"
+          delete_archive: true
+        register: unzipped_tomcat_file
 
       # - name: Copy unzipped tomcat folder to intended -Destination
       #   copy:
