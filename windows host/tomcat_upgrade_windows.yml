@@ -20,18 +20,24 @@
     # ajp_proxyname
 
     tasks:
-      - name: Backup existing Tomcat Folder
-        win_file:
-          path: D:\OCSBProjects\Tomcat9.0.73_BPG_CIMBMY
-          state: archive
-          dest: D:\Backup\Tomcat9.0.73_BPG_CIMBMY.zip
+      # - name: Backup existing Tomcat Folder
+      #   win_file:
+      #     path: D:\OCSBProjects\Tomcat9.0.73_BPG_CIMBMY
+      #     state: archive
+      #     dest: D:\Backup\Tomcat9.0.73_BPG_CIMBMY.zip
 
       - name: Unzip Tomcat zip file
-        win_unzip:
-          src: "{{ tomcat_zip_file }}"
-          dest: "{{ unzipped_dest }}"
-          delete_archive: true
+        win_shell: |
+          $zipfile = "D:\Patch\apache-tomcat-9.0.85-windows-x64.zip"
+          $destination = "D:\Patch"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
+          return $destination
         register: unzipped_tomcat_file
+
+      - name: Display results
+        debug:
+          var: unzipped_tomcat_file
 
       # - name: Copy unzipped tomcat folder to intended -Destination
       #   copy:
