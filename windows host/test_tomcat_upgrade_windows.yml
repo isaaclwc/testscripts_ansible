@@ -36,7 +36,7 @@
 
       - name: Unzip the file using PowerShell
         win_shell: |
-          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
+          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
         args:
           executable: powershell.exe
 
