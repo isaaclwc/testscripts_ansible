@@ -41,6 +41,10 @@
           executable: powershell.exe
         register: unzipped_tomcat_file
 
+      - name: Display results
+        debug:
+          var: unzipped_tomcat_file
+
       # - name: Unzip Tomcat zip file
       #   win_shell: |
       #     $zipfile = "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip"
@@ -49,10 +53,6 @@
       #     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
       #     return $destination
       #   register: unzipped_tomcat_file
-
-      - name: Display results
-        debug:
-          var: unzipped_tomcat_file
 
       # - name: Archive existing Tomcat folder
       #   win_shell: |
