@@ -34,14 +34,20 @@
       #   remote_src:
       #   register: unzipped_tomcat_file
 
-      - name: Unzip Tomcat zip file
+      - name: Unzip the file using PowerShell
         win_shell: |
-          $zipfile = "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip"
-          $destination = "C:\Users\Administrator\Desktop\Installer"
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
-          return $destination
-        register: unzipped_tomcat_file
+          Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
+        args:
+          executable: powershell.exe
+
+      # - name: Unzip Tomcat zip file
+      #   win_shell: |
+      #     $zipfile = "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip"
+      #     $destination = "C:\Users\Administrator\Desktop\Installer"
+      #     Add-Type -AssemblyName System.IO.Compression.FileSystem
+      #     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
+      #     return $destination
+      #   register: unzipped_tomcat_file
 
       - name: Display results
         debug:
@@ -53,11 +59,7 @@
       #   args:
       #     executable: powershell.exe
 
-      # - name: Unzip the file using PowerShell
-      #   win_shell: |
-      #     Expand-Archive -Path 'C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85.zip' -DestinationPath 'C:\Users\Administrator\Desktop\Installer' -Force -Verbose
-      #   args:
-      #     executable: powershell.exe
+
 
       # - name: Copy unzipped tomcat folder to designated path
       #   win_shell: |
