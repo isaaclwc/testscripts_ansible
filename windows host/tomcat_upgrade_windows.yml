@@ -39,6 +39,10 @@
         debug:
           var: unzipped_tomcat_file
 
+      # - name: Formating tomcat tomcat name
+      #   set_fact:
+      #     tomcat_directory_name: "{{ tomcat_extracted.src | basename | regex_replace('\\.tar\\.gz$', '') }}"
+
       # - name: Copy unzipped tomcat folder to intended -Destination
       #   copy:
       #     src: "{{ unzipped_tomcat_file.dest }}"
