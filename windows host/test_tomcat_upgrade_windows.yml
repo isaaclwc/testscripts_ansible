@@ -20,14 +20,20 @@
     # ajp_proxyname
 
     tasks:
-      - name: Unzip Tomcat zip file
-        win_shell: |
-          $zipfile = "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip"
-          $destination = "C:\Users\Administrator\Desktop\Installer"
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
-          return $destination
+      - name: Unarchive tomcat zip file
+        src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip
+        dest: C:\Users\Administrator\Desktop\Installer
+        remote_src:
         register: unzipped_tomcat_file
+
+      # - name: Unzip Tomcat zip file
+      #   win_shell: |
+      #     $zipfile = "C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip"
+      #     $destination = "C:\Users\Administrator\Desktop\Installer"
+      #     Add-Type -AssemblyName System.IO.Compression.FileSystem
+      #     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $destination)
+      #     return $destination
+      #   register: unzipped_tomcat_file
 
       - name: Display results
         debug:
