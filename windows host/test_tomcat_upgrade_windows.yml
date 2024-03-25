@@ -20,11 +20,19 @@
     # ajp_proxyname
 
     tasks:
-      - name: Unarchive tomcat zip file
-        src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip
-        dest: C:\Users\Administrator\Desktop\Installer
-        remote_src:
+      - name: Unzip Tomcat zip file
+        win_unzip:
+          src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip
+          dest: C:\Users\Administrator\Desktop\Installer
+          recurse: yes
+          delete_archive: yes
         register: unzipped_tomcat_file
+
+      # - name: Unarchive tomcat zip file
+      #   src: C:\Users\Administrator\Desktop\Installer\apache-tomcat-9.0.85-windows-x64.zip
+      #   dest: C:\Users\Administrator\Desktop\Installer
+      #   remote_src:
+      #   register: unzipped_tomcat_file
 
       # - name: Unzip Tomcat zip file
       #   win_shell: |
