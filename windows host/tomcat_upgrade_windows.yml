@@ -92,5 +92,6 @@
           Set-Location {{ new_app_path }}\bin
           cmd.exe /c "{{ tomcat_name }}.exe //US//{{ tomcat_name }} --JvmMs=2048 --JvmMx=2048"
 
-      # cd D:\OCSBProjects\Tomcat9.0.85_CIMBNIAGA_BPG\bin
-      # service.bat install BPGCIMBNIAGA9085
+      - name: stop existing
+
+      - name: start new service
