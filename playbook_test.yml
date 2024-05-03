@@ -5,28 +5,34 @@
     become: yes
 
     tasks:
-      - name: Extract java package
-        command: "sudo tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
-        become: yes
-        become_user: root
-        register: java_extracted
+      # - name: Extract java package
+      #   command: "sudo tar -zxvf /opt/jdk-8u202-linux-x64.tar.gz -C /usr/java/"
+      #   become: yes
+      #   become_user: root
+      #   register: java_extracted
 
-      - name: Backup existing /etc/profile file
-        copy: 
-          src: /etc/profile
-          dest: /etc/profile.BAK
-          remote_src: yes
-        become: yes
-        become_user: root
+      # - name: Backup existing /etc/profile file
+      #   copy: 
+      #     src: /etc/profile
+      #     dest: /etc/profile.BAK
+      #     remote_src: yes
+      #   become: yes
+      #   become_user: root
 
-      - name: Add JAVA HOME path to /etc/profile
-        lineinfile:
-          path: /etc/profile
-          line: "{{ item }}"
-          insertafter: '^# will prevent the need for merging in future updates.'
+      # - name: Add JAVA HOME path to /etc/profile
+      #   lineinfile:
+      #     path: /etc/profile
+      #     line: "{{ item }}"
+      #     insertafter: '^# will prevent the need for merging in future updates.'
           
-        become: yes
-        become_user: root
-        with_items:
-          - export JAVA_HOME=/usr/java/{{java_extracted.stdout_lines[0]}}
-          - export PATH=$JAVA_HOME/bin:$PATH
+      #   become: yes
+      #   become_user: root
+      #   with_items:
+      #     - export JAVA_HOME=/usr/java/{{java_extracted.stdout_lines[0]}}
+      #     - export PATH=$JAVA_HOME/bin:$PATH
+
+      - name: Replace 'thin' with 'oci'
+        replace:
+          path: 'C:\Users\Administrator\Desktop\test.txt'
+          regexp: '^{{ existing_app_path }}$'
+          replace: '{{ new_app_path }}'
